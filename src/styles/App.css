@@ -1,0 +1,278 @@
+/* src/styles/style.css */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+h1,
+h2,
+h3 {
+  color: #2c3e50;
+}
+
+button {
+  padding: 8px 16px;
+  margin: 8px;
+  background-color: #3498db;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-page {
+  background-color: #fff5e6;
+}
+
+.manager-page {
+  background-color: #e6f7ff;
+}
+
+.employe-page {
+  background-color: #e8ffe6;
+}
+
+.planning-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.planning-container h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.planning-container button {
+  padding: 8px 12px;
+  margin: 4px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #3498db;
+  color: white;
+  transition: background 0.3s;
+}
+
+.planning-container button:hover {
+  background-color: #2980b9;
+}
+
+.return-button {
+  margin-bottom: 20px;
+  background-color: #3498db;
+}
+
+.form-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.form-section input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+table th {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+/* ========== Styles pour la page Employés ========== */
+
+.employes-container {
+  padding: 30px;
+  background: #f4f6f8;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.employes-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.form-container input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.btn {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn.add {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn.update {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn.edit {
+  background-color: #3498db;
+  color: white;
+  margin-right: 5px;
+}
+
+.btn.delete {
+  background-color: #3498db;
+  color: white;
+}
+
+.employe-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.employe-table th,
+.employe-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.employe-table th {
+  background-color: #f8f8f8;
+  color: #333;
+}
+
+.pointages-container {
+  padding: 20px;
+}
+
+.pointages-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.pointages-table th,
+.pointages-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.pointages-table th {
+  background-color: #f5f5f5;
+  text-align: left;
+}
+
+.conges-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.conges-table th,
+.conges-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+.conges-table th {
+  background-color: #f5f5f5;
+}
+
+.conge-form {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+}
+
+.conge-form label {
+  margin-bottom: 10px;
+}
+
+.conge-form input {
+  margin-top: 5px;
+  padding: 5px;
+}
+
+.conge-form button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}

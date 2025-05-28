@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const db = require('./config/db');
+<<<<<<< HEAD
 const planningRoutes = require('./routes/plannings');
 const employeRoutes = require('./routes/employeRoutes')(db);
 const pointageRoutes = require('./routes/pointageRoutes');
@@ -13,6 +14,19 @@ const statsRoutes = require('./routes/statsRoutes');
 
 
 // Initialisation de l'application Express
+=======
+const planningRoutes = require('./routes/plannings'); // corrigé ici
+const employeRoutes = require('./routes/employeRoutes')(db);
+const pointageRoutes = require('./routes/pointageRoutes');
+const congesRoutes = require('./routes/conges');
+
+
+
+
+
+
+
+>>>>>>> 93f5a34d (PROJETTUTORER)
 const app = express();
 const port = 5000;
 
@@ -28,6 +42,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/plannings', planningRoutes);
+<<<<<<< HEAD
 app.use('/api', authRoutes);
 app.use('/api/employes', employeRoutes);
 app.use('/api/pointages', pointageRoutes);
@@ -46,6 +61,12 @@ app.use((req, res) => {
 
 
 
+=======
+app.use('/api/login', authRoutes(db));
+app.use('/api/employes', employeRoutes);
+app.use('/api/pointages', pointageRoutes);
+app.use('/api/conges', congesRoutes);
+>>>>>>> 93f5a34d (PROJETTUTORER)
 
 app.listen(port, () => {
     console.log(`Serveur backend démarré sur le port ${port}`);

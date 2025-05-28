@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const pool = require('../config/db');
 const { enregistrerActivite } = require('../utils/logAction');
 
@@ -14,12 +15,20 @@ exports.login = async (req, res) => {
             [email]
         );
 
+=======
+exports.login = async (req, res, db) => {
+    const { email, password } = req.body;
+
+    try {
+        const [rows] = await db.execute('SELECT * FROM utilisateurs WHERE email = ?', [email]);
+>>>>>>> 93f5a34d (PROJETTUTORER)
         const user = rows[0];
 
         if (!user || user.mot_de_passe !== password) {
             return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
 
+<<<<<<< HEAD
         if (user.actif === 0) {
             await enregistrerActivite(connection, user.id, 'Tentative de connexion - compte désactivé');
             return res.status(403).json({ message: 'Compte désactivé. Veuillez contacter un administrateur.' });
@@ -64,5 +73,11 @@ exports.logout = async (req, res) => {
         res.status(500).json({ message: "Erreur serveur" });
     } finally {
         if (connection) connection.release();
+=======
+        res.json({ user });
+    } catch (error) {
+        console.error('Erreur login:', error);
+        res.status(500).json({ message: 'Erreur serveur' });
+>>>>>>> 93f5a34d (PROJETTUTORER)
     }
 };
