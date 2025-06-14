@@ -22,6 +22,7 @@ function ManagerDashboard() {
                         <li><button onClick={() => navigate('/manager/plannings')}>Gérer les plannings</button></li>
                         <li><button onClick={() => navigate('/manager/employes')}>Voir les employés</button></li>
                         <li><button onClick={() => navigate('/manager/pointages')}>Suivi des pointages</button></li>
+                        <li><button onClick={() => navigate('/manager/congeEmploye')}>Demande de congé</button></li>
                     </ul>
                 </div>
             </div>

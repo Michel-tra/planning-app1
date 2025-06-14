@@ -9,6 +9,7 @@ import PlanningEquipe from './pages/manager/plannings';
 import Pointages from './pages/manager/pointages';
 import Employes from './pages/manager/employes';
 import DemandesConge from './pages/employe/DemandesConge';
+import CongeEmploye from './pages/manager/congeEmploye';
 
 
 
@@ -58,7 +59,7 @@ const App = () => {
         <Route path="/manager/plannings" element={<PrivateRoute allowedRoles={['manager']}><PlanningEquipe /></PrivateRoute>} />
         <Route path="/manager/pointages" element={<PrivateRoute allowedRoles={['manager']}><Pointages /></PrivateRoute>} />
         <Route path="/manager/employes" element={<PrivateRoute allowedRoles={['manager']}><Employes /></PrivateRoute>} />
-
+        <Route path="/manager/congeEmploye" element={<PrivateRoute allowedRoles={['manager']}><CongeEmploye /></PrivateRoute>} />
         {/* Employé Routes */}
         <Route path="/employe" element={<PrivateRoute allowedRoles={['employe']}><EmployeDashboard /></PrivateRoute>} />
         <Route path="/employe/pointer" element={<PrivateRoute allowedRoles={['employe']}><Pointer /></PrivateRoute>} />

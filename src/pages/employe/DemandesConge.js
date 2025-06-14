@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const DemandesConge = () => {
     const [demandes, setDemandes] = useState([]);
     const [form, setForm] = useState({ date_debut: '', date_fin: '', motif: '' });
     const user = JSON.parse(localStorage.getItem('user'));
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchDemandes();
@@ -28,8 +30,11 @@ const DemandesConge = () => {
         try {
             await axios.post('http://localhost:5000/api/conges', {
                 utilisateur_id: user.id,
-                ...form
+                date_debut: form.date_debut,
+                date_fin: form.date_fin,
+                motif: form.motif,
             });
+
             setForm({ date_debut: '', date_fin: '', motif: '' });
             fetchDemandes(); // Rafraîchir la liste
         } catch (error) {
@@ -40,6 +45,11 @@ const DemandesConge = () => {
     return (
         <div className="container">
             <h2>Mes demandes de congé</h2>
+            {/* BOUTON RETOUR */}
+            <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
+                ← Retour
+            </button>
+
 
             <form onSubmit={handleSubmit} className="conge-form">
                 <label>Date début :
@@ -69,9 +79,14 @@ const DemandesConge = () => {
                             <td>{demande.date_debut}</td>
                             <td>{demande.date_fin}</td>
                             <td>{demande.motif}</td>
-                            <td style={{ color: demande.statut === 'validé' ? 'green' : demande.statut === 'refusé' ? 'red' : 'orange' }}>
-                                {demande.statut}
+                            <td style={{
+                                color:
+                                    demande.statut === 'accepte' ? 'green' :
+                                        demande.statut === 'refuse' ? 'red' : 'orange'
+                            }}>
+                                {demande.statut.replace('_', ' ')}
                             </td>
+
                         </tr>
                     ))}
                 </tbody>

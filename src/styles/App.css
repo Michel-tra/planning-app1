@@ -178,7 +178,7 @@ th {
 }
 
 .btn.update {
-  background-color: #007bff;
+  background-color: #3498db;
   color: white;
 }
 
@@ -270,7 +270,7 @@ th {
 
 .conge-form button {
   padding: 10px;
-  background-color: #007bff;
+  background-color: #3498db;
   color: white;
   border: none;
   cursor: pointer;
