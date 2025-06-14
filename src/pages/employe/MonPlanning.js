@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
+import { useNavigate } from 'react-router-dom';
 
 function MonPlanning() {
     const user = JSON.parse(localStorage.getItem('user'));
     const utilisateurId = user?.id;
+    const navigate = useNavigate();
 
     const [plannings, setPlannings] = useState([]);
     const [erreur, setErreur] = useState('');
@@ -27,6 +29,11 @@ function MonPlanning() {
         <DashboardLayout>
             <div style={{ padding: 20 }}>
                 <h2>Mon planning</h2>
+                {/* BOUTON RETOUR */}
+                <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
+                    ← Retour
+                </button>
+
                 {erreur && <p style={{ color: 'red' }}>{erreur}</p>}
 
                 {plannings.length > 0 ? (

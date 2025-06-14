@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
+import { useNavigate } from 'react-router-dom';
 
 function Pointages() {
     const [pointages, setPointages] = useState([]);
-
+    const navigate = useNavigate();
     useEffect(() => {
         fetchPointages();
     }, []);
@@ -22,6 +23,10 @@ function Pointages() {
         <DashboardLayout>
             <div className="pointages-container">
                 <h2>Historique des Pointages</h2>
+                {/* BOUTON RETOUR */}
+                <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
+                    ← Retour
+                </button>
                 <table className="pointages-table">
                     <thead>
                         <tr>

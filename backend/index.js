@@ -5,7 +5,7 @@ const db = require('./config/db');
 const planningRoutes = require('./routes/plannings'); // corrigé ici
 const employeRoutes = require('./routes/employeRoutes')(db);
 const pointageRoutes = require('./routes/pointageRoutes');
-const congesRoutes = require('./routes/conges');
+const demandesCongeRoutes = require('./routes/demandesCongeRoutes');
 
 
 
@@ -31,7 +31,7 @@ app.use('/api/plannings', planningRoutes);
 app.use('/api/login', authRoutes(db));
 app.use('/api/employes', employeRoutes);
 app.use('/api/pointages', pointageRoutes);
-app.use('/api/conges', congesRoutes);
+app.use('/api/conges', demandesCongeRoutes);
 
 app.listen(port, () => {
     console.log(`Serveur backend démarré sur le port ${port}`);
