@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import DashboardLayout from '../../components/DashboardLayout';
 
 
 function Pointage() {
@@ -20,14 +19,14 @@ function Pointage() {
     };
 
     return (
-        <DashboardLayout>
-            <div className="page-container">
-                <h2>Pointage</h2>
-                <button onClick={() => pointer('arrivee')}>Pointer l'arrivée</button>
-                <button onClick={() => pointer('depart')}>Pointer le départ</button>
-                {status && <p>{status}</p>}
-            </div>
-        </DashboardLayout>
+
+        <div className="page-container">
+            <h2>Pointage</h2>
+            <button onClick={() => pointer('arrivee')}>Pointer l'arrivée</button>
+            <button onClick={() => pointer('depart')}>Pointer le départ</button>
+            {status && <p>{status}</p>}
+        </div>
+
     );
 }
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import DashboardLayout from '../../components/DashboardLayout';
-
+import '../../styles/App.css';
 
 function GestionUtilisateurs() {
     const [utilisateurs, setUtilisateurs] = useState([]);
@@ -37,41 +36,41 @@ function GestionUtilisateurs() {
     };
 
     return (
-        <DashboardLayout>
-            <div className="page-container">
-                <h2>Gestion des utilisateurs</h2>
-                <div style={{ marginBottom: '1rem' }}>
-                    <button onClick={() => window.location.href = '/admin/ajouter-utilisateur'}>
-                        ➕ Ajouter un utilisateur
-                    </button>
-                </div>
 
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Email</th>
-                            <th>Rôle</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {utilisateurs.map(user => (
-                            <tr key={user.id}>
-                                <td>{user.nom}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td>
-                                    <button onClick={() => handleModifier(user.id)}>Modifier</button>
-                                    <button onClick={() => handleSupprimer(user.id)}>Supprimer</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+        <div className="page-container">
+            <h2>Gestion des utilisateurs</h2>
+            <div style={{ marginBottom: '1rem' }}>
+                <button onClick={() => window.location.href = '/admin/ajouter-utilisateur'}>
+                    ➕ Ajouter un utilisateur
+                </button>
             </div>
-        </DashboardLayout>
+
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {utilisateurs.map(user => (
+                        <tr key={user.id}>
+                            <td>{user.nom}</td>
+                            <td>{user.email}</td>
+                            <td>{user.role}</td>
+                            <td>
+                                <button onClick={() => handleModifier(user.id)}>Modifier</button>
+                                <button onClick={() => handleSupprimer(user.id)}>Supprimer</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+
     );
 }
 

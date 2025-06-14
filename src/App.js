@@ -10,10 +10,14 @@ import Pointages from './pages/manager/pointages';
 import Employes from './pages/manager/employes';
 import DemandesConge from './pages/employe/DemandesConge';
 import CongeEmploye from './pages/manager/congeEmploye';
+import ScannerBadge from './pages/pointeur/ScannerBadge';
+import PointeurDashboard from './pages/pointeur/PointeurDashboard';
+import PointagesHistorique from './pages/pointeur/PointagesHistorique';
+import HistoriqueConges from './pages/employe/historiqueConges';
+import HistoriquePointages from './pages/employe/historiquePointages';
 
 
 
-import Pointer from './pages/employe/pointer';
 import EmployeDashboard from './pages/employe/EmployeDashboard';
 import MonPlanning from './pages/employe/MonPlanning';
 import Pointage from './pages/employe/Pointages';
@@ -22,10 +26,6 @@ import AjoutUtilisateur from './pages/admin/AjoutUtilisateur';
 import ModifierUtilisateur from './pages/admin/ModifierUtilisateur';
 import NotFound from './pages/NotFound';
 import PrivateRoute from './components/PrivateRoute';
-
-
-
-
 
 import './styles/App.css';
 
@@ -39,13 +39,18 @@ const App = () => {
     if (role === 'admin') return '/admin';
     if (role === 'manager') return '/manager';
     if (role === 'employe') return '/employe';
+    if (role === 'pointeur') return '/pointeur';
+    // Si aucun rôle reconnu, redirige vers la page de connexion
     return '/login';
   };
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={isAuthenticated ? <Navigate to={defaultRedirect()} /> : <Login />} />
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/logout" element={<Navigate to="/login" />} />
+        <Route path="/home" element={<Navigate to={isAuthenticated ? defaultRedirect() : '/login'} />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<PrivateRoute allowedRoles={['admin']}><AdminDashboard /></PrivateRoute>} />
@@ -60,13 +65,19 @@ const App = () => {
         <Route path="/manager/pointages" element={<PrivateRoute allowedRoles={['manager']}><Pointages /></PrivateRoute>} />
         <Route path="/manager/employes" element={<PrivateRoute allowedRoles={['manager']}><Employes /></PrivateRoute>} />
         <Route path="/manager/congeEmploye" element={<PrivateRoute allowedRoles={['manager']}><CongeEmploye /></PrivateRoute>} />
+
         {/* Employé Routes */}
         <Route path="/employe" element={<PrivateRoute allowedRoles={['employe']}><EmployeDashboard /></PrivateRoute>} />
-        <Route path="/employe/pointer" element={<PrivateRoute allowedRoles={['employe']}><Pointer /></PrivateRoute>} />
         <Route path="/employe/mon-planning" element={<PrivateRoute allowedRoles={['employe']}><MonPlanning /></PrivateRoute>} />
         <Route path="/employe/pointage" element={<PrivateRoute allowedRoles={['employe']}><Pointage /></PrivateRoute>} />
         <Route path="/employe/conges" element={<PrivateRoute allowedRoles={['employe']}><DemandesConge /></PrivateRoute>} />
+        <Route path="/employe/historique-conges" element={<PrivateRoute allowedRoles={['employe']}><HistoriqueConges /></PrivateRoute>} />
+        <Route path="/employe/historique-pointages" element={<PrivateRoute allowedRoles={['employe']}><HistoriquePointages /></PrivateRoute>} />
 
+        {/* Pointeur Routes */}
+        <Route path="/pointeur" element={<PrivateRoute allowedRoles={['pointeur']}><PointeurDashboard /></PrivateRoute>} />
+        <Route path="/pointeur/ScannerBadge" element={<PrivateRoute allowedRoles={['pointeur']}><ScannerBadge /></PrivateRoute>} />
+        <Route path="/pointeur/PointagesHistorique" element={<PrivateRoute allowedRoles={['pointeur']}><PointagesHistorique /></PrivateRoute>} />
 
 
 

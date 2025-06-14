@@ -2,6 +2,16 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    const jour = String(d.getDate()).padStart(2, '0');
+    const mois = String(d.getMonth() + 1).padStart(2, '0');
+    const annee = d.getFullYear();
+    return `${jour}/${mois}/${annee}`;
+};
+
 const CongeEmploye = () => {
     const [demandes, setDemandes] = useState([]);
     const navigate = useNavigate();
@@ -53,8 +63,8 @@ const CongeEmploye = () => {
                     {demandes.map((d) => (
                         <tr key={d.id}>
                             <td>{d.nom}</td>
-                            <td>{d.date_debut}</td>
-                            <td>{d.date_fin}</td>
+                            <td>{formatDate(d.date_debut)}</td>
+                            <td>{formatDate(d.date_fin)}</td>
                             <td>{d.commentaire || '-'}</td>
                             <td>{d.statut}</td>
                             <td>

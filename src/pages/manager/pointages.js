@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import DashboardLayout from '../../components/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
 
 function Pointages() {
@@ -20,43 +19,51 @@ function Pointages() {
     };
 
     return (
-        <DashboardLayout>
-            <div className="pointages-container">
-                <h2>Historique des Pointages</h2>
-                {/* BOUTON RETOUR */}
-                <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
-                    ← Retour
-                </button>
-                <table className="pointages-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nom de l'utilisateur</th>
-                            <th>Type</th>
-                            <th>Date</th>
-                            <th>Heure</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {pointages.map(p => {
-                            const date = new Date(p.horodatage);
-                            const jour = date.toLocaleDateString();
-                            const heure = date.toLocaleTimeString();
 
-                            return (
-                                <tr key={p.id}>
-                                    <td>{p.id}</td>
-                                    <td>{p.nom_utilisateur}</td>
-                                    <td>{p.type}</td>
-                                    <td>{jour}</td>
-                                    <td>{heure}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div>
-        </DashboardLayout>
+        <div className="pointages-container">
+            <h2>Historique des Pointages</h2>
+            {/* BOUTON RETOUR */}
+            <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
+                ← Retour
+            </button>
+
+            <a
+                href={`http://localhost:5000/api/pointages/export/pdf?utilisateur_id=${JSON.parse(localStorage.getItem('user')).id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <button>Télécharger PDF</button>
+            </a>
+            <table className="pointages-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom de l'utilisateur</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Heure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {pointages.map(p => {
+                        const date = new Date(p.horodatage);
+                        const jour = date.toLocaleDateString();
+                        const heure = date.toLocaleTimeString();
+
+                        return (
+                            <tr key={p.id}>
+                                <td>{p.id}</td>
+                                <td>{p.nom_utilisateur}</td>
+                                <td>{p.type}</td>
+                                <td>{jour}</td>
+                                <td>{heure}</td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
+
     );
 }
 

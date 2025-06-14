@@ -25,10 +25,14 @@ function Login() {
                 return;
             }
 
+            // Stockage des infos utilisateur
             localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('utilisateurId', data.user.id); // ✅ AJOUT ICI
+            localStorage.setItem('utilisateurNom', data.user.nom); // (optionnel mais utile)
 
+            // Redirection selon le rôle
             const role = data.user.role;
-            if (role === 'admin' || role === 'manager' || role === 'employe') {
+            if (role === 'admin' || role === 'manager' || role === 'employe' || role === 'pointeur') {
                 navigate(`/${role}`);
             } else {
                 setErreur('Rôle utilisateur inconnu');
