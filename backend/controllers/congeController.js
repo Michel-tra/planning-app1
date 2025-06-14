@@ -61,4 +61,25 @@ exports.updateStatut = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };
+// Statistiques d'absences par employé (total de jours d'absence validés)
+exports.getStatsAbsences = async (req, res) => {
+    const db = req.app.get('db');
+    try {
+        const [rows] = await db.execute(
+            `SELECT 
+                u.nom AS nom_utilisateur,
+                SUM(DATEDIFF(dc.date_fin, dc.date_debut) + 1) AS total_jours
+             FROM demandes_conge dc
+             JOIN utilisateurs u ON dc.utilisateur_id = u.id
+             WHERE dc.statut = 'accepte'
+             GROUP BY dc.utilisateur_id
+             ORDER BY total_jours DESC`
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error('Erreur lors du calcul des statistiques d’absences :', err);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
 

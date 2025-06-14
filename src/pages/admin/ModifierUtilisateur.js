@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import DashboardLayout from '../../components/DashboardLayout';
 
 
 function ModifierUtilisateur() {
@@ -58,34 +57,34 @@ function ModifierUtilisateur() {
     if (loading) return <p>Chargement...</p>;
 
     return (
-        <DashboardLayout>
-            <div className="page-container">
-                <h2>Modifier l'utilisateur</h2>
-                <form onSubmit={handleSubmit}>
-                    <label>
-                        Nom :
-                        <input type="text" name="nom" value={utilisateur.nom} onChange={handleChange} required />
-                    </label>
-                    <br />
-                    <label>
-                        Email :
-                        <input type="email" name="email" value={utilisateur.email} onChange={handleChange} required />
-                    </label>
-                    <br />
-                    <label>
-                        Rôle :
-                        <select name="role" value={utilisateur.role} onChange={handleChange} required>
-                            <option value="">-- Choisir un rôle --</option>
-                            <option value="admin">Admin</option>
-                            <option value="manager">Manager</option>
-                            <option value="employe">Employé</option>
-                        </select>
-                    </label>
-                    <br />
-                    <button type="submit">💾 Enregistrer</button>
-                </form>
-            </div>
-        </DashboardLayout>
+
+        <div className="page-container">
+            <h2>Modifier l'utilisateur</h2>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    Nom :
+                    <input type="text" name="nom" value={utilisateur.nom} onChange={handleChange} required />
+                </label>
+                <br />
+                <label>
+                    Email :
+                    <input type="email" name="email" value={utilisateur.email} onChange={handleChange} required />
+                </label>
+                <br />
+                <label>
+                    Rôle :
+                    <select name="role" value={utilisateur.role} onChange={handleChange} required>
+                        <option value="">-- Choisir un rôle --</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="employe">Employé</option>
+                    </select>
+                </label>
+                <br />
+                <button type="submit">💾 Enregistrer</button>
+            </form>
+        </div>
+
     );
 }
 

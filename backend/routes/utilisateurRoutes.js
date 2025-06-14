@@ -7,5 +7,8 @@ router.get('/', utilisateurController.getAllUtilisateurs);
 router.post('/', utilisateurController.ajouterUtilisateur);
 router.put('/:id', utilisateurController.modifierUtilisateur);
 router.delete('/:id', utilisateurController.supprimerUtilisateur);
+router.get('/manager/employes', utilisateurController.getAllUtilisateurs);
+
+
 
 module.exports = router;

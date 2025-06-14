@@ -6,6 +6,10 @@ const planningRoutes = require('./routes/plannings'); // corrigé ici
 const employeRoutes = require('./routes/employeRoutes')(db);
 const pointageRoutes = require('./routes/pointageRoutes');
 const demandesCongeRoutes = require('./routes/demandesCongeRoutes');
+const utilisateurRoutes = require('./routes/utilisateurRoutes');
+const historiqueRoutes = require('./routes/historiqueRoutes')(db);
+
+
 
 
 
@@ -28,10 +32,15 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/plannings', planningRoutes);
-app.use('/api/login', authRoutes(db));
+app.use('/api', authRoutes);
 app.use('/api/employes', employeRoutes);
 app.use('/api/pointages', pointageRoutes);
 app.use('/api/conges', demandesCongeRoutes);
+app.use('/api/utilisateurs', utilisateurRoutes);
+app.use('/api/historique', historiqueRoutes);
+app.use('/api/stats', require('./routes/statsRoutes'));
+
+
 
 app.listen(port, () => {
     console.log(`Serveur backend démarré sur le port ${port}`);

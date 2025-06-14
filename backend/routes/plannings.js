@@ -7,6 +7,8 @@ router.post('/', planningController.create);       // Créer un planning
 router.put('/:id', planningController.update);     // Modifier un planning
 router.delete('/:id', planningController.remove);  // Supprimer un planning
 router.get('/personnel/:id', planningController.getPlanningPersonnel)
+
+
 module.exports = router;
 
 

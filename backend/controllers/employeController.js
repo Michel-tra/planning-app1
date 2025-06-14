@@ -47,10 +47,44 @@ const deleteEmploye = async (req, res, db) => {
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };
+const getResumeEmploye = async (req, res, db) => {
+    const utilisateurId = req.params.id;
+
+    try {
+        // Compter les plannings de l'utilisateur
+        const [plannings] = await db.query(
+            'SELECT COUNT(*) AS total FROM plannings WHERE utilisateur_id = ?',
+            [utilisateurId]
+        );
+
+        // Compter les demandes de congé de l'utilisateur
+        const [conges] = await db.query(
+            'SELECT COUNT(*) AS total FROM demandes_conge WHERE utilisateur_id = ?',
+            [utilisateurId]
+        );
+
+        // Compter les pointages de l'utilisateur
+        const [pointages] = await db.query(
+            'SELECT COUNT(*) AS total FROM pointages WHERE utilisateur_id = ?',
+            [utilisateurId]
+        );
+
+        res.status(200).json({
+            totalPlannings: plannings[0].total,
+            totalConges: conges[0].total,
+            totalPointages: pointages[0].total
+        });
+    } catch (error) {
+        console.error('Erreur getResumeEmploye :', error);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
 
 module.exports = {
     getAllEmployes,
     addEmploye,
     updateEmploye,
-    deleteEmploye
+    deleteEmploye,
+    getResumeEmploye
 };
