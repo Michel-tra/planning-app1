@@ -50,7 +50,7 @@ function DashboardLayout({ children, role }) {
                 return (
                     <>
                         <li><Link to="/admin/utilisateurs">Utilisateurs</Link></li>
-                        <li><Link to="/admin/statistiques">Statistiques</Link></li>
+
                     </>
                 );
             default:

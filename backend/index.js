@@ -2,21 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const db = require('./config/db');
-const planningRoutes = require('./routes/plannings'); // corrigé ici
+const planningRoutes = require('./routes/plannings');
 const employeRoutes = require('./routes/employeRoutes')(db);
 const pointageRoutes = require('./routes/pointageRoutes');
 const demandesCongeRoutes = require('./routes/demandesCongeRoutes');
 const utilisateurRoutes = require('./routes/utilisateurRoutes');
 const historiqueRoutes = require('./routes/historiqueRoutes')(db);
+const adminRoutes = require('./routes/adminRoutes');
 
-
-
-
-
-
-
-
-
+// Initialisation de l'application Express
 const app = express();
 const port = 5000;
 
@@ -39,6 +33,12 @@ app.use('/api/conges', demandesCongeRoutes);
 app.use('/api/utilisateurs', utilisateurRoutes);
 app.use('/api/historique', historiqueRoutes);
 app.use('/api/stats', require('./routes/statsRoutes'));
+app.use('/api/admin', adminRoutes);
+// Gestion des erreurs 404  
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route non trouvée' });
+});
+
 
 
 

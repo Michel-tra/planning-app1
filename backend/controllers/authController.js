@@ -1,5 +1,7 @@
+const { enregistrerActivite } = require('../utils/logAction'); // ✅ Import correct
+
 exports.login = async (req, res) => {
-    const db = req.app.get('db'); // ← Récupération standard
+    const db = req.app.get('db');
     const { email, password } = req.body;
 
     try {
@@ -10,8 +12,12 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
 
-        // Mise à jour de connexion
+        // ✅ Mise à jour connexion
         await db.execute('UPDATE utilisateurs SET est_connecte = 1, dernier_login = NOW() WHERE id = ?', [user.id]);
+        await enregistrerActivite(db, user.id, 'connexion');
+
+        // ✅ Journalisation
+        await enregistrerActivite(db, user.id, 'Connexion réussie');
 
         res.json({ user });
     } catch (error) {
@@ -26,6 +32,10 @@ exports.logout = async (req, res) => {
 
     try {
         await db.execute('UPDATE utilisateurs SET est_connecte = 0 WHERE id = ?', [utilisateurId]);
+
+        // ✅ Journalisation
+        await enregistrerActivite(db, utilisateurId, 'Déconnexion effectuée');
+
         res.json({ message: "Déconnexion réussie" });
     } catch (err) {
         console.error("Erreur lors de la déconnexion :", err);
