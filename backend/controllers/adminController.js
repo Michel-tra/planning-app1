@@ -28,7 +28,7 @@ exports.getAdminStats = async (req, res) => {
             "SELECT COUNT(*) AS pointagesAujourdhui FROM pointages WHERE DATE(horodatage) = CURDATE()"
         );
 
-        connection.release();  // ✅ Relâche la connexion
+        connection.release();
 
         res.json({
             totalUtilisateurs,

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
 
+
 function ManagerDashboard() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
