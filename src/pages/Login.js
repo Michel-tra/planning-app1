@@ -19,20 +19,29 @@ function Login() {
             });
 
             const data = await response.json();
+            console.log("Réponse login :", data); // ✅ pour savoir ce qu'on reçoit
 
             if (!response.ok) {
                 setErreur(data.message || 'Erreur de connexion');
                 return;
             }
 
-            // Stockage des infos utilisateur
-            localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('utilisateurId', data.user.id); // ✅ AJOUT ICI
-            localStorage.setItem('utilisateurNom', data.user.nom); // (optionnel mais utile)
+            // ✅ sécurise l'accès aux données reçues
+            const utilisateur = data.utilisateur || data.user || data;
 
+            // ✅ Stockage des infos utilisateur (à partir de data.user)
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('utilisateurId', data.user.id);
+            localStorage.setItem('utilisateurNom', data.user.nom);
+            localStorage.setItem('utilisateur', JSON.stringify({
+                id: data.user.id,
+                nom: data.user.nom,
+                prenom: data.user.prenom,
+                role: data.user.role
+            }));
             // Redirection selon le rôle
-            const role = data.user.role;
-            if (role === 'admin' || role === 'manager' || role === 'employe' || role === 'pointeur') {
+            const role = utilisateur.role;
+            if (['admin', 'manager', 'employe', 'pointeur'].includes(role)) {
                 navigate(`/${role}`);
             } else {
                 setErreur('Rôle utilisateur inconnu');

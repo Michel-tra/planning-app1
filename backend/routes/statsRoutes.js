@@ -12,8 +12,11 @@ router.get('/absences-par-mois-utilisateur', statsController.getAbsencesParMoisE
 
 router.get('/absences-utilisateur/:id', statsController.getTauxAbsenceUtilisateur);
 router.get('/historique-arrivees/:id', statsController.getHistoriqueArrivees);
+<<<<<<< HEAD
 router.get('/export/absences', statsController.exportAbsencesPDF);
 console.log("✅ statsRoutes chargé");
+=======
+>>>>>>> 24d514b8 (20/06/2025)
 
 router.get('/absences-utilisateurs', statsController.getAbsencesParUtilisateur);
 

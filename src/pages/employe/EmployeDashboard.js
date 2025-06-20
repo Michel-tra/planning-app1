@@ -2,14 +2,78 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
+import {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ReferenceLine,
+} from 'recharts';
 
 
 function EmployeDashboard() {
     const [resume, setResume] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [arriveesGraph, setArriveesGraph] = useState([]);
+
+
 
     const utilisateurId = localStorage.getItem('utilisateurId');
     console.log("utilisateurId =", utilisateurId);
+    const [taux, setTaux] = useState(null);
+
+    useEffect(() => {
+        const fetchHistoriqueArrivees = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/api/stats/historique-arrivees/${utilisateurId}`);
+                let totalHeures = 0;
+
+                const formatted = res.data.map(row => {
+                    const parts = row.heure_arrivee.split(':');
+                    const heureFloat = parseFloat(parts[0]) + parseFloat(parts[1]) / 60;
+
+                    totalHeures += heureFloat;
+
+                    return {
+                        jour: new Date(row.jour).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+                        heure: heureFloat,
+                        heure_label: row.heure_arrivee,
+                        en_retard: heureFloat > 8.25 // 08:15 => 8h + 15min/60 = 8.25
+
+                    };
+                });
+
+                const moyenne = parseFloat((totalHeures / formatted.length).toFixed(2));
+                setArriveesGraph({ data: formatted, moyenne });
+            } catch (err) {
+                console.error("Erreur chargement historique arrivées :", err);
+            }
+        };
+
+        if (utilisateurId) {
+            fetchHistoriqueArrivees();
+        }
+    }, [utilisateurId]);
+
+
+    useEffect(() => {
+        const fetchTaux = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/api/stats/absences-utilisateur/${utilisateurId}`);
+                setTaux(res.data);
+            } catch (err) {
+                console.error("Erreur taux absence/presence :", err);
+            }
+        };
+
+        if (utilisateurId) fetchTaux();
+    }, [utilisateurId]);
 
     useEffect(() => {
         const fetchResume = async () => {
@@ -72,6 +136,81 @@ function EmployeDashboard() {
                                     <p className="text-gray-500">Aucun pointage enregistré aujourd'hui.</p>
                                 )}
                             </div>
+                            {taux && (
+                                <div className="bg-white shadow p-6 rounded-xl mt-10">
+                                    <h4 className="text-lg font-semibold mb-4 text-blue-800">📊 Taux de présence / absence</h4>
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <BarChart data={[taux]}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="utilisateur" hide />
+                                            <YAxis domain={[0, 100]} />
+                                            <Tooltip />
+                                            <Legend />
+                                            <Bar dataKey="taux_presence" fill="#4CAF50" name="Présence (%)" />
+                                            <Bar dataKey="taux_absence" fill="#F44336" name="Absence (%)" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            )}
+                            {arriveesGraph.data && arriveesGraph.data.length > 0 && (
+                                <div className="bg-white shadow-md rounded-lg p-6 mt-10">
+                                    <h4 className="text-lg font-semibold mb-4 text-blue-700">📈 Historique des heures d’arrivée (30 derniers jours)</h4>
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <LineChart data={arriveesGraph.data}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="jour" />
+                                            <YAxis
+                                                domain={[6, 12]}
+                                                tickFormatter={(val) => `${Math.floor(val)}h${(val % 1 * 60).toFixed(0).padStart(2, '0')}`}
+                                                label={{ value: 'Heure', angle: -90, position: 'insideLeft' }}
+                                            />
+                                            <Tooltip
+                                                formatter={(val) => `${Math.floor(val)}h${(val % 1 * 60).toFixed(0).padStart(2, '0')}`}
+                                                labelFormatter={(label) => `📅 ${label}`}
+                                            />
+                                            <Legend />
+
+                                            {/* ✅ Ligne des heures d’arrivée */}
+                                            <Line
+                                                type="monotone"
+                                                dataKey="heure"
+                                                name="Heure d’arrivée"
+                                                stroke="#4CAF50"
+                                                strokeWidth={2}
+                                                dot={({ cx, cy, payload }) => (
+                                                    <circle
+                                                        cx={cx}
+                                                        cy={cy}
+                                                        r={4}
+                                                        fill={payload.en_retard ? '#F44336' : '#4CAF50'}
+                                                        stroke={payload.en_retard ? '#F44336' : '#4CAF50'}
+                                                    />
+                                                )}
+                                                activeDot={{ r: 6 }}
+                                                isAnimationActive={false}
+                                            />
+
+                                            {/* 🔵 Ligne de retard à 08:15 */}
+                                            <ReferenceLine
+                                                y={8.25}
+                                                stroke="#2196F3"
+                                                strokeDasharray="4 4"
+                                                label="08:15 (Retard)"
+                                            />
+
+                                            {/* 🔷 Ligne de moyenne */}
+                                            {arriveesGraph.moyenne && (
+                                                <ReferenceLine
+                                                    y={arriveesGraph.moyenne}
+                                                    stroke="#FF9800"
+                                                    strokeDasharray="5 5"
+                                                    label={`Moyenne ${Math.floor(arriveesGraph.moyenne)}h${(arriveesGraph.moyenne % 1 * 60).toFixed(0).padStart(2, '0')}`}
+                                                />
+                                            )}
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            )}
 
                             {/* Planning */}
                             <div className="bg-white p-6 rounded-xl shadow border">

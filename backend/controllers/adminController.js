@@ -1,4 +1,3 @@
-// controllers/adminController.js
 const { enregistrerActivite } = require('../utils/logAction');  // Si nécessaire
 
 // 📊 Statistiques générales pour le tableau de bord admin
@@ -6,29 +5,25 @@ exports.getAdminStats = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        const connection = await db.getConnection();
-
-        const [[{ totalUtilisateurs }]] = await connection.execute(
+        const [[{ totalUtilisateurs }]] = await db.execute(
             'SELECT COUNT(*) AS totalUtilisateurs FROM utilisateurs'
         );
 
-        const [[{ connectes }]] = await connection.execute(
+        const [[{ connectes }]] = await db.execute(
             'SELECT COUNT(*) AS connectes FROM utilisateurs WHERE est_connecte = 1'
         );
 
-        const [repartition] = await connection.execute(
+        const [repartition] = await db.execute(
             'SELECT role, COUNT(*) AS total FROM utilisateurs GROUP BY role'
         );
 
-        const [[{ congesEnAttente }]] = await connection.execute(
+        const [[{ congesEnAttente }]] = await db.execute(
             "SELECT COUNT(*) AS congesEnAttente FROM demandes_conge WHERE statut = 'en_attente'"
         );
 
-        const [[{ pointagesAujourdhui }]] = await connection.execute(
+        const [[{ pointagesAujourdhui }]] = await db.execute(
             "SELECT COUNT(*) AS pointagesAujourdhui FROM pointages WHERE DATE(horodatage) = CURDATE()"
         );
-
-        connection.release();
 
         res.json({
             totalUtilisateurs,
@@ -49,17 +44,13 @@ exports.getRecentLogs = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        const connection = await db.getConnection();
-
-        const [logs] = await connection.execute(`
+        const [logs] = await db.execute(`
             SELECT ja.*, u.nom, u.prenom, u.role 
             FROM journal_activite ja
             JOIN utilisateurs u ON ja.utilisateur_id = u.id
             ORDER BY ja.date_action DESC
             LIMIT 10
         `);
-
-        connection.release();
 
         res.json(logs);
 
@@ -75,9 +66,7 @@ exports.getCongesParUtilisateur = async (req, res) => {
     const annee = req.query.annee || new Date().getFullYear();
 
     try {
-        const connection = await db.getConnection();
-
-        const [rows] = await connection.execute(`
+        const [rows] = await db.execute(`
             SELECT 
                 u.nom,
                 MONTH(dc.date_debut) AS mois,
@@ -88,8 +77,6 @@ exports.getCongesParUtilisateur = async (req, res) => {
             GROUP BY u.nom, mois
             ORDER BY mois
         `, [annee]);
-
-        connection.release();
 
         const moisNoms = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
             'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -113,9 +100,7 @@ exports.getDroitCongesParAnciennete = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        const connection = await db.getConnection();
-
-        const [rows] = await connection.execute(`
+        const [rows] = await db.execute(`
             SELECT 
                 id, nom, prenom, date_embauche,
                 TIMESTAMPDIFF(YEAR, date_embauche, CURDATE()) AS anciennete
@@ -123,8 +108,6 @@ exports.getDroitCongesParAnciennete = async (req, res) => {
             WHERE date_embauche IS NOT NULL
               AND TIMESTAMPDIFF(YEAR, date_embauche, CURDATE()) >= 1
         `);
-
-        connection.release();
 
         res.json(rows);
 
@@ -139,9 +122,7 @@ exports.getCongesParAnnee = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        const connection = await db.getConnection();
-
-        const [rows] = await connection.execute(`
+        const [rows] = await db.execute(`
             SELECT 
                 YEAR(date_debut) AS annee, 
                 COUNT(*) AS total
@@ -150,8 +131,6 @@ exports.getCongesParAnnee = async (req, res) => {
             GROUP BY annee
             ORDER BY annee ASC
         `);
-
-        connection.release();
 
         res.json(rows);
 
@@ -166,9 +145,7 @@ exports.getCongesParUtilisateurParAnnee = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        const connection = await db.getConnection();
-
-        const [rows] = await connection.execute(`
+        const [rows] = await db.execute(`
             SELECT 
                 u.nom,
                 YEAR(dc.date_debut) AS annee,
@@ -179,8 +156,6 @@ exports.getCongesParUtilisateurParAnnee = async (req, res) => {
             GROUP BY u.nom, annee
             ORDER BY annee ASC
         `);
-
-        connection.release();
 
         res.json(rows);
 
@@ -196,8 +171,6 @@ exports.getTotalCongesParUtilisateur = async (req, res) => {
     const annee = req.query.annee;
 
     try {
-        const connection = await db.getConnection();
-
         const query = `
             SELECT 
                 CONCAT(u.nom, ' ', u.prenom) AS nom,
@@ -212,10 +185,8 @@ exports.getTotalCongesParUtilisateur = async (req, res) => {
         `;
 
         const [rows] = annee
-            ? await connection.execute(query, [annee])
-            : await connection.execute(query);
-
-        connection.release();
+            ? await db.execute(query, [annee])
+            : await db.execute(query);
 
         res.json(rows);
 
@@ -231,8 +202,6 @@ exports.getCongesParBeneficiaire = async (req, res) => {
     const annee = req.query.annee;
 
     try {
-        const connection = await db.getConnection();
-
         const query = `
             SELECT 
                 CONCAT(u.nom, ' ', u.prenom) AS nom,
@@ -247,10 +216,8 @@ exports.getCongesParBeneficiaire = async (req, res) => {
         `;
 
         const [rows] = annee && annee !== 'tous'
-            ? await connection.execute(query, [annee])
-            : await connection.execute(query);
-
-        connection.release();
+            ? await db.execute(query, [annee])
+            : await db.execute(query);
 
         res.json(rows);
 
