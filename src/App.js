@@ -26,6 +26,9 @@ import AjoutUtilisateur from './pages/admin/AjoutUtilisateur';
 import ModifierUtilisateur from './pages/admin/ModifierUtilisateur';
 import NotFound from './pages/NotFound';
 import PrivateRoute from './components/PrivateRoute';
+import PointeurAbsences from './pages/pointeur/PointeurAbsences';
+
+
 
 import './styles/App.css';
 
@@ -78,7 +81,7 @@ const App = () => {
         <Route path="/pointeur" element={<PrivateRoute allowedRoles={['pointeur']}><PointeurDashboard /></PrivateRoute>} />
         <Route path="/pointeur/ScannerBadge" element={<PrivateRoute allowedRoles={['pointeur']}><ScannerBadge /></PrivateRoute>} />
         <Route path="/pointeur/PointagesHistorique" element={<PrivateRoute allowedRoles={['pointeur']}><PointagesHistorique /></PrivateRoute>} />
-
+        <Route path="/pointeur/absences" element={<PointeurAbsences />} />
 
 
         {/* Fallback */}

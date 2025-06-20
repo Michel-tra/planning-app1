@@ -9,6 +9,8 @@ const demandesCongeRoutes = require('./routes/demandesCongeRoutes');
 const utilisateurRoutes = require('./routes/utilisateurRoutes');
 const historiqueRoutes = require('./routes/historiqueRoutes')(db);
 const adminRoutes = require('./routes/adminRoutes');
+const statsRoutes = require('./routes/statsRoutes');
+
 
 // Initialisation de l'application Express
 const app = express();
@@ -32,8 +34,10 @@ app.use('/api/pointages', pointageRoutes);
 app.use('/api/conges', demandesCongeRoutes);
 app.use('/api/utilisateurs', utilisateurRoutes);
 app.use('/api/historique', historiqueRoutes);
-app.use('/api/stats', require('./routes/statsRoutes'));
+app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
+
+
 // Gestion des erreurs 404  
 app.use((req, res) => {
     res.status(404).json({ message: 'Route non trouvée' });
