@@ -7,6 +7,15 @@ const DemandesConge = () => {
     const [form, setForm] = useState({ date_debut: '', date_fin: '', motif: '' });
     const user = JSON.parse(localStorage.getItem('user'));
     const navigate = useNavigate();
+    const formaterDateLongue = (isoString) => {
+        const date = new Date(isoString);
+        return date.toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+
 
     useEffect(() => {
         fetchDemandes();
@@ -76,8 +85,8 @@ const DemandesConge = () => {
                 <tbody>
                     {demandes.map((demande) => (
                         <tr key={demande.id}>
-                            <td>{demande.date_debut}</td>
-                            <td>{demande.date_fin}</td>
+                            <td>{formaterDateLongue(demande.date_debut)}</td>
+                            <td>{formaterDateLongue(demande.date_fin)}</td>
                             <td>{demande.motif}</td>
                             <td style={{
                                 color:
