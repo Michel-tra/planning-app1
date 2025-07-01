@@ -127,16 +127,36 @@ function ManagerDashboard() {
                     <p>Chargement des statistiques...</p>
                 ) : (
                     <>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                            <StatCard label="👨‍💼 Utilisateurs connectés" value={stats.employesActifs} />
-                            <StatCard label="📍 Mon pointage aujourd'hui" value={stats.etatPointageManager} />
-                            <StatCard label="🕒 Taux de pointage" value={stats.tauxPointage} />
-                            <StatCard label="📅 Plannings cette semaine" value={stats.planningsSemaine} />
-                            <StatCard label="🏖️ Congés en attente" value={stats.congesEnAttente} />
-                            <StatCard label="❌ Absents aujourd'hui" value={stats.absencesJour} />
-                            <StatCard label="⏰ Retards aujourd'hui" value={stats.retardsJour} />
+                        <div className="dashboard-cards">
+                            <div className="dashboard-card">
+                                <h3>👨‍💼 Utilisateurs connectés</h3>
+                                <p>3</p>
+                            </div>
+                            <div className="dashboard-card">
+                                <h3>📍 Mon pointage aujourd'hui</h3>
+                                <p>Absent</p>
+                            </div>
+                            <div className="dashboard-card">
+                                <h3>⏰ Taux de pointage</h3>
+                                <p>0%</p>
+                            </div>
+                            <div className="dashboard-card">
+                                <h3>📅 Plannings cette semaine</h3>
+                                <p>0</p>
+                            </div>
+                            <div className="dashboard-card">
+                                <h3>📝 Congés en attente</h3>
+                                <p>0</p>
+                            </div>
+                            <div className="dashboard-card">
+                                <h3>❌ Absents aujourd'hui</h3>
+                                <p>3</p>
+                            </div>
+                            <div className="dashboard-card">
+                                <h3>⏱️ Retards aujourd'hui</h3>
+                                <p>0</p>
+                            </div>
                         </div>
-
                         <h3 className="text-xl font-semibold mb-4 mt-10">📊 Absences par mois</h3>
                         <div className="bg-white p-4 rounded-lg shadow-md">
                             {absencesMois.length === 0 ? (

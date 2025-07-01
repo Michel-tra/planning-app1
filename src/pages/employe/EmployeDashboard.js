@@ -16,17 +16,12 @@ import {
     ReferenceLine,
 } from 'recharts';
 
-
 function EmployeDashboard() {
     const [resume, setResume] = useState(null);
     const [loading, setLoading] = useState(true);
     const [arriveesGraph, setArriveesGraph] = useState([]);
-
-
-
-    const utilisateurId = localStorage.getItem('utilisateurId');
-    console.log("utilisateurId =", utilisateurId);
     const [taux, setTaux] = useState(null);
+    const utilisateurId = localStorage.getItem('utilisateurId');
 
     useEffect(() => {
         const fetchHistoriqueArrivees = async () => {
@@ -44,8 +39,7 @@ function EmployeDashboard() {
                         jour: new Date(row.jour).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
                         heure: heureFloat,
                         heure_label: row.heure_arrivee,
-                        en_retard: heureFloat > 8.25 // 08:15 => 8h + 15min/60 = 8.25
-
+                        en_retard: heureFloat > 8.25
                     };
                 });
 
@@ -60,7 +54,6 @@ function EmployeDashboard() {
             fetchHistoriqueArrivees();
         }
     }, [utilisateurId]);
-
 
     useEffect(() => {
         const fetchTaux = async () => {
@@ -82,10 +75,9 @@ function EmployeDashboard() {
                 setLoading(false);
                 return;
             }
+
             try {
-                console.log("Appel API vers:", `http://localhost:5000/api/pointages/resume-jour/${utilisateurId}`);
                 const res = await axios.get(`http://localhost:5000/api/pointages/resume-jour/${utilisateurId}`);
-                console.log("Réponse API :", res.data);
                 setResume(res.data);
             } catch (error) {
                 console.error("Erreur fetchResume :", error);
@@ -119,11 +111,9 @@ function EmployeDashboard() {
                     {loading ? (
                         <p className="text-gray-600">Chargement...</p>
                     ) : resume ? (
-                        <div className="space-y-6">
-
-                            {/* Pointages */}
-                            <div className="bg-white p-6 rounded-xl shadow border">
-                                <h4 className="text-lg font-semibold mb-3 text-blue-800">🕒 Mes pointages aujourd'hui</h4>
+                        <div className="card-grid">
+                            <div className="card full-width">
+                                <h4 className="text-blue-800 text-lg font-semibold mb-3">🕒 Mes pointages aujourd'hui</h4>
                                 {resume.pointages.length > 0 ? (
                                     <ul className="list-disc list-inside text-gray-700">
                                         {resume.pointages.map((p, index) => (
@@ -136,116 +126,120 @@ function EmployeDashboard() {
                                     <p className="text-gray-500">Aucun pointage enregistré aujourd'hui.</p>
                                 )}
                             </div>
-                            {taux && (
-                                <div className="bg-white shadow p-6 rounded-xl mt-10">
-                                    <h4 className="text-lg font-semibold mb-4 text-blue-800">📊 Taux de présence / absence</h4>
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <BarChart data={[taux]}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="utilisateur" hide />
-                                            <YAxis domain={[0, 100]} />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Bar dataKey="taux_presence" fill="#4CAF50" name="Présence (%)" />
-                                            <Bar dataKey="taux_absence" fill="#F44336" name="Absence (%)" />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            )}
-                            {arriveesGraph.data && arriveesGraph.data.length > 0 && (
-                                <div className="bg-white shadow-md rounded-lg p-6 mt-10">
-                                    <h4 className="text-lg font-semibold mb-4 text-blue-700">📈 Historique des heures d’arrivée (30 derniers jours)</h4>
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <LineChart data={arriveesGraph.data}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="jour" />
-                                            <YAxis
-                                                domain={[6, 12]}
-                                                tickFormatter={(val) => `${Math.floor(val)}h${(val % 1 * 60).toFixed(0).padStart(2, '0')}`}
-                                                label={{ value: 'Heure', angle: -90, position: 'insideLeft' }}
-                                            />
-                                            <Tooltip
-                                                formatter={(val) => `${Math.floor(val)}h${(val % 1 * 60).toFixed(0).padStart(2, '0')}`}
-                                                labelFormatter={(label) => `📅 ${label}`}
-                                            />
-                                            <Legend />
 
-                                            {/* ✅ Ligne des heures d’arrivée */}
-                                            <Line
-                                                type="monotone"
-                                                dataKey="heure"
-                                                name="Heure d’arrivée"
-                                                stroke="#4CAF50"
-                                                strokeWidth={2}
-                                                dot={({ cx, cy, payload }) => (
-                                                    <circle
-                                                        cx={cx}
-                                                        cy={cy}
-                                                        r={4}
-                                                        fill={payload.en_retard ? '#F44336' : '#4CAF50'}
-                                                        stroke={payload.en_retard ? '#F44336' : '#4CAF50'}
-                                                    />
-                                                )}
-                                                activeDot={{ r: 6 }}
-                                                isAnimationActive={false}
-                                            />
-
-                                            {/* 🔵 Ligne de retard à 08:15 */}
-                                            <ReferenceLine
-                                                y={8.25}
-                                                stroke="#2196F3"
-                                                strokeDasharray="4 4"
-                                                label="08:15 (Retard)"
-                                            />
-
-                                            {/* 🔷 Ligne de moyenne */}
-                                            {arriveesGraph.moyenne && (
-                                                <ReferenceLine
-                                                    y={arriveesGraph.moyenne}
-                                                    stroke="#FF9800"
-                                                    strokeDasharray="5 5"
-                                                    label={`Moyenne ${Math.floor(arriveesGraph.moyenne)}h${(arriveesGraph.moyenne % 1 * 60).toFixed(0).padStart(2, '0')}`}
-                                                />
-                                            )}
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            )}
-
-                            {/* Planning */}
-                            <div className="bg-white p-6 rounded-xl shadow border">
-                                <h4 className="text-lg font-semibold mb-3 text-blue-800">📅 Planning du jour</h4>
-                                {resume.planning ? (
-                                    <p className="text-gray-700">
-                                        <strong>{resume.planning.heure_debut}</strong> → <strong>{resume.planning.heure_fin}</strong><br />
-                                        {resume.planning.description}
-                                    </p>
-                                ) : (
-                                    <p className="text-gray-500">Aucun planning prévu aujourd'hui.</p>
-                                )}
+                            <div className="card">
+                                <h4>📅 Planning du jour</h4>
+                                <p>{resume.planning ? `${resume.planning.heure_debut} → ${resume.planning.heure_fin}` : "Non disponible"}</p>
                             </div>
-
-                            {/* Congé */}
-                            <div className="bg-white p-6 rounded-xl shadow border">
-                                <h4 className="text-lg font-semibold mb-3 text-blue-800">🏖️ Congé</h4>
-                                {resume.conge ? (
-                                    <p className="text-gray-700">
-                                        Du <strong>{resume.conge.date_debut}</strong> au <strong>{resume.conge.date_fin}</strong><br />
-                                        Statut : <span className="capitalize">{resume.conge.statut}</span>
-                                    </p>
-                                ) : (
-                                    <p className="text-gray-500">Pas en congé aujourd'hui.</p>
-                                )}
+                            <div className="card">
+                                <h4>📌 Statut</h4>
+                                <p>{resume.estPresent ? "Présent" : "Absent"}</p>
+                            </div>
+                            <div className="card">
+                                <h4>🕓 Heures travaillées</h4>
+                                <p>{resume.heuresTravaillees || "0h"}</p>
                             </div>
                         </div>
                     ) : (
                         <p className="text-gray-500">Aucune donnée disponible.</p>
                     )}
                 </div>
+
+                {/* 📈 Graphiques */}
+                {taux && (
+                    <div className="bg-white shadow p-6 rounded-xl mt-10">
+                        <h4 className="text-lg font-semibold mb-4 text-blue-800">📊 Taux de présence / absence</h4>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={[taux]}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="utilisateur" hide />
+                                <YAxis domain={[0, 100]} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="taux_presence" fill="#4CAF50" name="Présence (%)" />
+                                <Bar dataKey="taux_absence" fill="#F44336" name="Absence (%)" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
+
+                {arriveesGraph.data && arriveesGraph.data.length > 0 && (
+                    <div className="bg-white shadow-md rounded-lg p-6 mt-10">
+                        <h4 className="text-lg font-semibold mb-4 text-blue-700">📈 Historique des heures d’arrivée (30 derniers jours)</h4>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <LineChart data={arriveesGraph.data}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="jour" />
+                                <YAxis
+                                    domain={[6, 12]}
+                                    tickFormatter={(val) => `${Math.floor(val)}h${(val % 1 * 60).toFixed(0).padStart(2, '0')}`}
+                                    label={{ value: 'Heure', angle: -90, position: 'insideLeft' }}
+                                />
+                                <Tooltip
+                                    formatter={(val) => `${Math.floor(val)}h${(val % 1 * 60).toFixed(0).padStart(2, '0')}`}
+                                    labelFormatter={(label) => `📅 ${label}`}
+                                />
+                                <Legend />
+                                <Line
+                                    type="monotone"
+                                    dataKey="heure"
+                                    name="Heure d’arrivée"
+                                    stroke="#4CAF50"
+                                    strokeWidth={2}
+                                    dot={({ cx, cy, payload }) => (
+                                        <circle
+                                            cx={cx}
+                                            cy={cy}
+                                            r={4}
+                                            fill={payload.en_retard ? '#F44336' : '#4CAF50'}
+                                            stroke={payload.en_retard ? '#F44336' : '#4CAF50'}
+                                        />
+                                    )}
+                                    activeDot={{ r: 6 }}
+                                    isAnimationActive={false}
+                                />
+                                <ReferenceLine y={8.25} stroke="#2196F3" strokeDasharray="4 4" label="08:15 (Retard)" />
+                                {arriveesGraph.moyenne && (
+                                    <ReferenceLine
+                                        y={arriveesGraph.moyenne}
+                                        stroke="#FF9800"
+                                        strokeDasharray="5 5"
+                                        label={`Moyenne ${Math.floor(arriveesGraph.moyenne)}h${(arriveesGraph.moyenne % 1 * 60).toFixed(0).padStart(2, '0')}`}
+                                    />
+                                )}
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
+
+                {/* 📅 Planning */}
+                {resume && resume.planning && (
+                    <div className="bg-white p-6 rounded-xl shadow border mt-6">
+                        <h4 className="text-lg font-semibold mb-3 text-blue-800">📅 Planning du jour</h4>
+                        <p className="text-gray-700">
+                            <strong>{resume.planning.heure_debut}</strong> → <strong>{resume.planning.heure_fin}</strong><br />
+                            {resume.planning.description}
+                        </p>
+                    </div>
+                )}
+
+                {/* 🏖️ Congé */}
+                {resume && (
+                    <div className="bg-white p-6 rounded-xl shadow border mt-6">
+                        <h4 className="text-lg font-semibold mb-3 text-blue-800">🏖️ Congé</h4>
+                        {resume.conge ? (
+                            <p className="text-gray-700">
+                                Du <strong>{resume.conge.date_debut}</strong> au <strong>{resume.conge.date_fin}</strong><br />
+                                Statut : <span className="capitalize">{resume.conge.statut}</span>
+                            </p>
+                        ) : (
+                            <p className="text-gray-500">Pas en congé aujourd'hui.</p>
+                        )}
+                    </div>
+                )}
             </div>
         </DashboardLayout>
     );
-
 }
 
 export default EmployeDashboard;

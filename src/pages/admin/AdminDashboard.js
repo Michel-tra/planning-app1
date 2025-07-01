@@ -71,10 +71,22 @@ function AdminDashboard() {
             {/* Statistiques générales */}
             {stats ? (
                 <div className="card-grid">
-                    <div className="card"><h4>Total utilisateurs</h4><p>{stats.totalUtilisateurs}</p></div>
-                    <div className="card"><h4>Connectés</h4><p>{stats.connectes}</p></div>
-                    <div className="card"><h4>Pointages aujourd’hui</h4><p>{stats.pointagesAujourdhui}</p></div>
-                    <div className="card"><h4>Congés en attente</h4><p>{stats.congesEnAttente}</p></div>
+                    <div className="card">
+                        <h4>Total utilisateurs</h4>
+                        <p>{stats.totalUtilisateurs}</p>
+                    </div>
+                    <div className="card">
+                        <h4>Connectés</h4>
+                        <p>{stats.connectes}</p>
+                    </div>
+                    <div className="card">
+                        <h4>Pointages aujourd’hui</h4>
+                        <p>{stats.pointagesAujourdhui}</p>
+                    </div>
+                    <div className="card">
+                        <h4>Congés en attente</h4>
+                        <p>{stats.congesEnAttente}</p>
+                    </div>
                     <div className="card full-width">
                         <h4>Répartition des rôles</h4>
                         <ul>
@@ -84,6 +96,7 @@ function AdminDashboard() {
                         </ul>
                     </div>
                 </div>
+
             ) : (
                 <p>Chargement des statistiques...</p>
             )}

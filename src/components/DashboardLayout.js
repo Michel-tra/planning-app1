@@ -8,10 +8,8 @@ function DashboardLayout({ children, role }) {
     const navigate = useNavigate();
     const utilisateur = JSON.parse(localStorage.getItem('utilisateur'));
 
-
     const handleLogout = async () => {
         const utilisateurId = JSON.parse(localStorage.getItem('user'))?.id;
-
         try {
             await axios.post('http://localhost:5000/api/logout', { utilisateurId });
             localStorage.removeItem('user');
@@ -21,29 +19,22 @@ function DashboardLayout({ children, role }) {
         }
     };
 
-    <div className="flex items-center gap-2 px-4 py-3 border-b">
-        <User className="text-blue-600" size={20} />
-        <span className="text-sm font-medium">
-            {utilisateur?.prenom} {utilisateur?.nom}
-        </span>
-    </div>
-
     const renderSidebarLinks = () => {
         switch (role) {
             case 'manager':
                 return (
                     <>
                         <li><Link to="/manager/plannings"><i className="fa-solid fa-calendar-days"></i> Plannings</Link></li>
-                        <li><Link to="/manager/pointages"><i className="fa-solid fa-hand-pointer"></i> Pointages</Link></li>
-                        <li><Link to="/manager/congeEmploye">Demandes de congés</Link></li>
-                        <li><Link to="/manager/employes">Employés</Link></li>
+                        <li><Link to="/manager/pointages"><i className="fa-solid fa-clock"></i> Pointages</Link></li>
+                        <li><Link to="/manager/congeEmploye"><i className="fa-solid fa-plane-departure"></i>Demandes de congés</Link></li>
+                        <li><Link to="/manager/employes"><i className="fa-solid fa-users"></i> Employés</Link></li>
                     </>
                 );
             case 'pointeur':
                 return (
                     <>
-                        <li><Link to="/pointeur/ScannerBadge">Scanner un badge</Link></li>
-                        <li><Link to="/pointeur/PointagesHistorique">Historique des pointages</Link></li>
+                        <li><Link to="/pointeur/ScannerBadge"><i className="fa-sharp fa-light fa-rectangle-barcode"></i> Scanner un badge</Link></li>
+                        <li><Link to="/pointeur/PointagesHistorique"><i className="fa-solid fa-clock"></i> Historique des pointages</Link></li>
                     </>
                 );
             case 'employe':
@@ -58,8 +49,7 @@ function DashboardLayout({ children, role }) {
             case 'admin':
                 return (
                     <>
-                        <li><Link to="/admin/utilisateurs">Utilisateurs</Link></li>
-
+                        <li><Link to="/admin/utilisateurs"><i className="fa-solid fa-users"></i> Utilisateurs</Link></li>
                     </>
                 );
             default:
@@ -69,14 +59,25 @@ function DashboardLayout({ children, role }) {
 
     return (
         <div className="layout">
+            {/* ✅ Sidebar avec les liens de navigation */}
             <aside className="sidebar">
-                <div className="sidebar-header">{role?.toUpperCase()}</div>
+                <div className="w-10 h-10">
+                </div>
+                <div className="sidebar-header flex justify-between items-center">
+                    <span>{role?.toUpperCase()}</span>
+                </div>
+
                 {utilisateur && (
-                    <div className="sidebar-user">
-                        <User size={18} color="#fff" />
-                        <span>{utilisateur.prenom} {utilisateur.nom}</span>
+                    <div className="flex items-center justify-between px-4 py-3 bg-blue-900 rounded text-white">
+                        <div className="flex items-center gap-2">
+                            <User size={18} color="#fff" />
+                            <span className="text-sm font-medium">
+                                {utilisateur.prenom} {utilisateur.nom}
+                            </span>
+                        </div>
                     </div>
                 )}
+
 
                 <ul className="sidebar-links">
                     {renderSidebarLinks()}
@@ -90,10 +91,19 @@ function DashboardLayout({ children, role }) {
             <main className="main-content">
                 {/* ✅ Message de bienvenue personnalisé */}
                 {utilisateur && (
-                    <div className="welcome-message px-4 py-3 bg-gray-100 text-sm text-gray-700 border-b">
-                        👋 Bonjour, <strong>{utilisateur.prenom} {utilisateur.nom}</strong> ! Bienvenue sur votre tableau de bord.
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b">
+                        <p className="text-sm text-gray-700">
+                            👋 Bonjour, <strong>{utilisateur.prenom} {utilisateur.nom}</strong> ! Bienvenue sur votre tableau de bord.
+                        </p>
+                        <img
+                            src="/logo.jpeg"
+                            alt="Logo"
+                            style={{ width: '100px', height: '100px', objectFit: 'contain', marginLeft: '800px' }}
+                        />
                     </div>
                 )}
+
+
 
                 {children}
             </main>
