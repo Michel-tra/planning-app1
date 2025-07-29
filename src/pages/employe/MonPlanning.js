@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../../styles/App.css'; // Assure-toi que ce fichier est bien importé
 
 function MonPlanning() {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -9,6 +10,7 @@ function MonPlanning() {
 
     const [plannings, setPlannings] = useState([]);
     const [erreur, setErreur] = useState('');
+
     const formaterDateLongue = (isoString) => {
         const date = new Date(isoString);
         return date.toLocaleDateString('fr-FR', {
@@ -17,7 +19,6 @@ function MonPlanning() {
             year: 'numeric'
         });
     };
-
 
     useEffect(() => {
         const fetchPlanning = async () => {
@@ -34,42 +35,42 @@ function MonPlanning() {
     }, [utilisateurId]);
 
     return (
+        <div className="container">
+            <h2 className="page-title">📅 Mon Planning</h2>
 
-        <div style={{ padding: 20 }}>
-            <h2>Mon planning</h2>
-            {/* BOUTON RETOUR */}
-            <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
+            <button className="btn-back" onClick={() => navigate(-1)}>
                 ← Retour
             </button>
 
-            {erreur && <p style={{ color: 'red' }}>{erreur}</p>}
+            {erreur && <p className="error">{erreur}</p>}
 
             {plannings.length > 0 ? (
-                <table border="1" cellPadding="8" style={{ marginTop: 20 }}>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Heure de début</th>
-                            <th>Heure de fin</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {plannings.map(planning => (
-                            <tr key={planning.id}>
-                                <td>{formaterDateLongue(planning.date)}</td>
-                                <td>{planning.heure_debut}</td>
-                                <td>{planning.heure_fin}</td>
-                                <td>{planning.description || '—'}</td>
+                <div className="table-container">
+                    <table className="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Heure de début</th>
+                                <th>Heure de fin</th>
+                                <th>Description</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {plannings.map((planning) => (
+                                <tr key={planning.id}>
+                                    <td>{formaterDateLongue(planning.date)}</td>
+                                    <td>{planning.heure_debut}</td>
+                                    <td>{planning.heure_fin}</td>
+                                    <td>{planning.description || '—'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             ) : (
-                <p>Aucun planning trouvé.</p>
+                <p className="no-data">Aucun planning trouvé.</p>
             )}
         </div>
-
     );
 }
 

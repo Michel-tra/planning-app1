@@ -1,3 +1,5 @@
+// backend/config/db.js
+//PERMET de configurer la connexion à la base de données MySQL
 const mysql = require('mysql2/promise');
 
 const db = mysql.createPool({

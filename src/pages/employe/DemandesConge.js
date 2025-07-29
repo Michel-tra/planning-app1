@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../../styles/App.css';
 
 const DemandesConge = () => {
     const [demandes, setDemandes] = useState([]);
     const [form, setForm] = useState({ date_debut: '', date_fin: '', motif: '' });
     const user = JSON.parse(localStorage.getItem('user'));
     const navigate = useNavigate();
+
     const formaterDateLongue = (isoString) => {
         const date = new Date(isoString);
         return date.toLocaleDateString('fr-FR', {
@@ -15,7 +17,6 @@ const DemandesConge = () => {
             year: 'numeric'
         });
     };
-
 
     useEffect(() => {
         fetchDemandes();
@@ -52,25 +53,22 @@ const DemandesConge = () => {
     };
 
     return (
-        <div className="container">
-            <h2>Mes demandes de congé</h2>
-            {/* BOUTON RETOUR */}
-            <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
-                ← Retour
-            </button>
+        <div className="conge-container">
+            <h2 className="conge-title">📅 Mes demandes de congé</h2>
 
+            <button className="retour-btn" onClick={() => navigate(-1)}>← Retour au tableau de bord</button>
 
             <form onSubmit={handleSubmit} className="conge-form">
-                <label>Date début :
+                <label>Date de début :
                     <input type="date" name="date_debut" value={form.date_debut} onChange={handleChange} required />
                 </label>
-                <label>Date fin :
+                <label>Date de fin :
                     <input type="date" name="date_fin" value={form.date_fin} onChange={handleChange} required />
                 </label>
                 <label>Motif :
                     <input type="text" name="motif" value={form.motif} onChange={handleChange} required />
                 </label>
-                <button type="submit">Envoyer la demande</button>
+                <button type="submit" className="submit-btn">Envoyer la demande</button>
             </form>
 
             <table className="conges-table">
@@ -88,14 +86,9 @@ const DemandesConge = () => {
                             <td>{formaterDateLongue(demande.date_debut)}</td>
                             <td>{formaterDateLongue(demande.date_fin)}</td>
                             <td>{demande.motif}</td>
-                            <td style={{
-                                color:
-                                    demande.statut === 'accepte' ? 'green' :
-                                        demande.statut === 'refuse' ? 'red' : 'orange'
-                            }}>
+                            <td className={`statut ${demande.statut}`}>
                                 {demande.statut.replace('_', ' ')}
                             </td>
-
                         </tr>
                     ))}
                 </tbody>

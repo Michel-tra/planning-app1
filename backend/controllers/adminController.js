@@ -1,29 +1,37 @@
 // controllers/adminController.js
+// Contrôleur administratif : gère les statistiques, les congés et les journaux d'activité des utilisateurs (employés, managers, etc.)
 
+// 📊 Statistiques générales pour le tableau de bord admin
 exports.getAdminStats = async (req, res) => {
     const db = req.app.get('db');
 
     try {
+        // Nombre total d'utilisateurs
         const [[{ totalUtilisateurs }]] = await db.execute(
             'SELECT COUNT(*) AS totalUtilisateurs FROM utilisateurs'
         );
 
+        // Nombre d'utilisateurs connectés actuellement
         const [[{ connectes }]] = await db.execute(
             'SELECT COUNT(*) AS connectes FROM utilisateurs WHERE est_connecte = 1'
         );
 
+        // Répartition des utilisateurs selon leur rôle (employé, manager, etc.)
         const [repartition] = await db.execute(
             `SELECT role, COUNT(*) AS total FROM utilisateurs GROUP BY role`
         );
 
+        // Nombre de demandes de congés en attente
         const [[{ congesEnAttente }]] = await db.execute(
             "SELECT COUNT(*) AS congesEnAttente FROM demandes_conge WHERE statut = 'en_attente'"
         );
 
+        // Nombre de pointages réalisés aujourd'hui
         const [[{ pointagesAujourdhui }]] = await db.execute(
             "SELECT COUNT(*) AS pointagesAujourdhui FROM pointages WHERE DATE(horodatage) = CURDATE()"
         );
 
+        // Réponse JSON contenant toutes les statistiques
         res.json({
             totalUtilisateurs,
             connectes,
@@ -37,11 +45,12 @@ exports.getAdminStats = async (req, res) => {
     }
 };
 
-// ✅ Nouvelle méthode : Activité récente (logs)
+// 📁 Journal d'activité : dernières actions enregistrées
 exports.getRecentLogs = async (req, res) => {
     const db = req.app.get('db');
 
     try {
+        // Récupère les 10 dernières lignes du journal d’activité avec nom, prénom, rôle
         const [logs] = await db.execute(`
             SELECT ja.*, u.nom, u.prenom, u.role 
             FROM journal_activite ja
@@ -55,6 +64,8 @@ exports.getRecentLogs = async (req, res) => {
         res.status(500).json({ message: "Erreur serveur lors de la récupération du journal." });
     }
 };
+
+// 📅 Congés acceptés par utilisateur et par mois pour une année donnée
 exports.getCongesParUtilisateur = async (req, res) => {
     const db = req.app.get('db');
     const annee = req.query.annee || new Date().getFullYear();
@@ -75,12 +86,13 @@ exports.getCongesParUtilisateur = async (req, res) => {
             [annee]
         );
 
-        // Transformer mois numériques → noms de mois + agréger si nécessaire
+        // Liste des noms des mois pour affichage lisible
         const moisNoms = [
             '', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
             'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
         ];
 
+        // Transformation du résultat avec noms de mois
         const result = rows.map(row => ({
             nom: row.nom,
             mois: moisNoms[row.mois],
@@ -94,7 +106,7 @@ exports.getCongesParUtilisateur = async (req, res) => {
     }
 };
 
-// ✅ API : utilisateurs ayant droit à un congé cette année par ancienneté
+// 🎉 Utilisateurs ayant droit à un congé (≥ 1 an d'ancienneté)
 exports.getDroitCongesParAnciennete = async (req, res) => {
     const db = req.app.get('db');
     const annee = req.query.annee || new Date().getFullYear();
@@ -115,7 +127,8 @@ exports.getDroitCongesParAnciennete = async (req, res) => {
         res.status(500).json({ message: "Erreur récupération des droits à congé." });
     }
 };
-// ✅ API : Total de congés accordés par année
+
+// 📈 Nombre total de congés acceptés par année
 exports.getCongesParAnnee = async (req, res) => {
     const db = req.app.get('db');
 
@@ -137,6 +150,7 @@ exports.getCongesParAnnee = async (req, res) => {
     }
 };
 
+// 📊 Congés par utilisateur et par année
 exports.getCongesParUtilisateurParAnnee = async (req, res) => {
     const db = req.app.get('db');
 
@@ -160,6 +174,7 @@ exports.getCongesParUtilisateurParAnnee = async (req, res) => {
     }
 };
 
+// 🧮 Total de congés par utilisateur (filtrable par année)
 exports.getTotalCongesParUtilisateur = async (req, res) => {
     const db = req.app.get('db');
     const annee = req.query.annee;
@@ -188,6 +203,8 @@ exports.getTotalCongesParUtilisateur = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la récupération." });
     }
 };
+
+// 🧑‍🤝‍🧑 Nombre de congés acceptés par bénéficiaire (année spécifique ou tous)
 exports.getCongesParBeneficiaire = async (req, res) => {
     const db = req.app.get('db');
     const annee = req.query.annee;
@@ -216,9 +233,3 @@ exports.getCongesParBeneficiaire = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la récupération des congés." });
     }
 };
-
-
-
-
-
-

@@ -12,6 +12,8 @@ router.get('/absences-par-mois-utilisateur', statsController.getAbsencesParMoisE
 
 router.get('/absences-utilisateur/:id', statsController.getTauxAbsenceUtilisateur);
 router.get('/historique-arrivees/:id', statsController.getHistoriqueArrivees);
+router.get('/export/absences', statsController.exportAbsencesPDF);
+console.log("✅ statsRoutes chargé");
 
 router.get('/absences-utilisateurs', statsController.getAbsencesParUtilisateur);
 

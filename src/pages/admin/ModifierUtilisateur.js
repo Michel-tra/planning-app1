@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import '../../styles/App.css';
 
 function ModifierUtilisateur() {
     const { id } = useParams();
@@ -8,14 +8,20 @@ function ModifierUtilisateur() {
 
     const [utilisateur, setUtilisateur] = useState({
         nom: '',
+        prenom: '',
         email: '',
+        badge_code: '',
         role: '',
+        poste: '',
+        telephone: '',
+        jour_repos: '',
+        date_embauche: '',
+        mot_de_passe: '',
     });
 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Charger les données de l'utilisateur
         fetch(`http://localhost:5000/api/utilisateurs/${id}`)
             .then(res => res.json())
             .then(data => {
@@ -35,7 +41,6 @@ function ModifierUtilisateur() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('➡️ Formulaire soumis');
         try {
             const res = await fetch(`http://localhost:5000/api/utilisateurs/${id}`, {
                 method: 'PUT',
@@ -44,10 +49,10 @@ function ModifierUtilisateur() {
             });
 
             if (res.ok) {
-                alert('Utilisateur modifié avec succès !');
+                alert('✅ Utilisateur modifié avec succès !');
                 navigate('/admin/utilisateurs');
             } else {
-                alert('Erreur lors de la modification.');
+                alert('❌ Erreur lors de la modification.');
             }
         } catch (error) {
             console.error('Erreur réseau :', error);
@@ -57,34 +62,63 @@ function ModifierUtilisateur() {
     if (loading) return <p>Chargement...</p>;
 
     return (
+        <div className="form-container">
+            <button className="btn-retour" onClick={() => navigate('/admin/utilisateurs')}>
+                ⬅ Retour à la gestion des utilisateurs
+            </button>
 
-        <div className="page-container">
-            <h2>Modifier l'utilisateur</h2>
-            <form onSubmit={handleSubmit}>
-                <label>
-                    Nom :
+            <h2>✏️ Modifier l'utilisateur</h2>
+
+            <form className="styled-form" onSubmit={handleSubmit}>
+                <label>Nom :
                     <input type="text" name="nom" value={utilisateur.nom} onChange={handleChange} required />
                 </label>
-                <br />
-                <label>
-                    Email :
+
+                <label>Prénom :
+                    <input type="text" name="prenom" value={utilisateur.prenom} onChange={handleChange} required />
+                </label>
+
+                <label>Email :
                     <input type="email" name="email" value={utilisateur.email} onChange={handleChange} required />
                 </label>
-                <br />
-                <label>
-                    Rôle :
+
+                <label>Poste :
+                    <input type="text" name="poste" value={utilisateur.poste} onChange={handleChange} />
+                </label>
+
+                <label>Téléphone :
+                    <input type="text" name="telephone" value={utilisateur.telephone} onChange={handleChange} />
+                </label>
+
+                <label>Jour de repos :
+                    <input type="text" name="jour_repos" value={utilisateur.jour_repos} onChange={handleChange} />
+                </label>
+
+                <label>Date d'embauche :
+                    <input type="date" name="date_embauche" value={utilisateur.date_embauche} onChange={handleChange} />
+                </label>
+
+                <label>Badge :
+                    <input type="text" name="badge" value={utilisateur.badge_code} onChange={handleChange} />
+                </label>
+
+                <label>Mot de passe (laisser vide si inchangé) :
+                    <input type="password" name="mot_de_passe" value={utilisateur.mot_de_passe} onChange={handleChange} />
+                </label>
+
+                <label>Rôle :
                     <select name="role" value={utilisateur.role} onChange={handleChange} required>
                         <option value="">-- Choisir un rôle --</option>
                         <option value="admin">Admin</option>
                         <option value="manager">Manager</option>
                         <option value="employe">Employé</option>
+                        <option value="pointeur">Pointeur</option>
                     </select>
                 </label>
-                <br />
-                <button type="submit">💾 Enregistrer</button>
+
+                <button type="submit" className="btn-primary">💾 Enregistrer</button>
             </form>
         </div>
-
     );
 }
 

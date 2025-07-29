@@ -11,64 +11,102 @@ exports.getManagerStats = async (req, res) => {
     const managerId = req.query.managerId;
 
     try {
-        // Utilisateurs actuellement connectés
+        // 1. Utilisateurs connectés
         const [connectes] = await db.execute(`
-            SELECT id, nom, prenom, role FROM utilisateurs WHERE est_connecte = 1
+            SELECT id, nom, prenom, role 
+            FROM utilisateurs 
+            WHERE est_connecte = 1
         `);
+
         const nbConnectes = connectes.length;
 
-        // Plannings de la semaine actuelle
+        // 2. Plannings de la semaine (corrigé avec DATE())
         const [[{ plannings }]] = await db.execute(`
-            SELECT COUNT(*) AS plannings FROM plannings 
-            WHERE WEEK(date) = WEEK(CURDATE()) AND YEAR(date) = YEAR(CURDATE())
+            SELECT COUNT(*) AS plannings 
+            FROM plannings
+            WHERE WEEK(DATE(date), 1) = WEEK(CURDATE(), 1)
+              AND YEAR(date) = YEAR(CURDATE())
+              AND date IS NOT NULL
         `);
 
-        // Congés en attente de validation
+        // 3. Congés en attente
         const [[{ conges }]] = await db.execute(`
-            SELECT COUNT(*) AS conges FROM demandes_conge WHERE statut = 'en_attente'
+            SELECT COUNT(*) AS conges 
+            FROM demandes_conge 
+            WHERE statut = 'en_attente'
         `);
 
-        // Absents aujourd'hui (connectés, non pointés, hors jour de repos)
+        // 4. Absents aujourd’hui (corrigé pour exclure les jours de repos & congés)
         const [absents] = await db.execute(`
-            SELECT u.id, u.nom, u.prenom
+            SELECT u.id 
             FROM utilisateurs u
-            LEFT JOIN pointages p ON u.id = p.utilisateur_id AND DATE(p.horodatage) = CURDATE()
-            WHERE u.est_connecte = 1
-              AND p.id IS NULL
-              AND NOT EXISTS (
-                  SELECT 1 FROM plannings
-                  WHERE utilisateur_id = u.id 
-                  AND DATE(date) = CURDATE() 
-                  AND jour_repos = 1
-              )
+            LEFT JOIN (
+                SELECT DISTINCT utilisateur_id 
+                FROM pointages 
+                WHERE DATE(horodatage) = CURDATE()
+            ) p ON u.id = p.utilisateur_id
+            LEFT JOIN demandes_conge dc 
+                ON dc.utilisateur_id = u.id 
+               AND dc.statut = 'accepte' 
+               AND CURDATE() BETWEEN dc.date_debut AND dc.date_fin
+            WHERE p.utilisateur_id IS NULL 
+              AND dc.id IS NULL 
+              AND LOWER(u.jour_repos) != LOWER(DAYNAME(CURDATE()))
         `);
 
-        // Retards du jour (arrivée après 09h05)
-        const [[{ nb: retardsJour }]] = await db.execute(`
-            SELECT COUNT(*) AS nb FROM pointages 
-            WHERE DATE(horodatage) = CURDATE() AND TIME(horodatage) > '09:05:00'
+        const absencesJour = absents.length;
+
+        // 5. Retards aujourd’hui
+        const [retardRows] = await db.execute(`
+            SELECT 
+                u.id, 
+                MIN(TIME(p.horodatage)) AS arrivee, 
+                MAX(TIME(p.horodatage)) AS depart,
+                TIMESTAMPDIFF(MINUTE, MIN(p.horodatage), MAX(p.horodatage)) AS duree,
+                pl.heure_debut
+            FROM utilisateurs u
+            JOIN pointages p ON u.id = p.utilisateur_id AND DATE(p.horodatage) = CURDATE()
+            LEFT JOIN plannings pl ON pl.utilisateur_id = u.id AND DATE(pl.date) = CURDATE()
+            GROUP BY u.id
         `);
 
-        // Pointage du manager aujourd'hui
+        let retardsJour = 0;
+        retardRows.forEach(user => {
+            if (user.heure_debut) {
+                // cas avec planning
+                if (user.arrivee > user.heure_debut) retardsJour++;
+            } else {
+                // sans planning : vérifier durée < 7h
+                const heures = user.duree ? user.duree / 60 : 0;
+                if (heures < 7) retardsJour++;
+            }
+        });
+
+        // 6. Pointage du manager aujourd’hui
         const [[{ aPointe }]] = await db.execute(`
-            SELECT COUNT(*) AS aPointe FROM pointages 
-            WHERE utilisateur_id = ? AND DATE(horodatage) = CURDATE()
+            SELECT COUNT(*) AS aPointe 
+            FROM pointages 
+            WHERE utilisateur_id = ? 
+              AND DATE(horodatage) = CURDATE()
         `, [managerId]);
 
-        // Taux de pointage
-        const [currentDayRow] = await db.execute(`SELECT DAYNAME(CURDATE()) AS today`);
-        const currentDay = currentDayRow[0].today.toLowerCase();
+        const etatPointageManager = aPointe > 0 ? 'Présent' : 'Absent';
+
+        // 7. Taux de pointage
+        const [currentDayRow] = await db.execute(`SELECT DAYNAME(CURDATE()) AS jour`);
+        const jourSemaine = currentDayRow[0].jour.toLowerCase();
 
         const [attendus] = await db.execute(`
-            SELECT DISTINCT u.id
+            SELECT u.id 
             FROM utilisateurs u
             LEFT JOIN demandes_conge dc 
                 ON dc.utilisateur_id = u.id 
-                AND dc.statut = 'en_attente'
-                AND CURDATE() BETWEEN dc.date_debut AND dc.date_fin
-            WHERE dc.id IS NULL
+               AND dc.statut = 'accepte'
+               AND CURDATE() BETWEEN dc.date_debut AND dc.date_fin
+            WHERE dc.id IS NULL 
               AND LOWER(u.jour_repos) != ?
-        `, [currentDay]);
+        `, [jourSemaine]);
+
         const nbAttendus = attendus.length;
 
         const [pointes] = await db.execute(`
@@ -76,22 +114,24 @@ exports.getManagerStats = async (req, res) => {
             FROM pointages 
             WHERE DATE(horodatage) = CURDATE()
         `);
+
         const nbPointes = pointes.length;
 
-        let tauxPointage = "0%";
-        if (nbAttendus > 0) {
-            tauxPointage = `${Math.round((nbPointes / nbAttendus) * 100)}%`;
-        }
+        const tauxPointage = nbAttendus > 0
+            ? `${Math.round((nbPointes / nbAttendus) * 100)}%`
+            : '0%';
 
+        // ✅ Résultat complet
         res.json({
             employesActifs: nbConnectes,
             utilisateursConnectes: connectes,
             planningsSemaine: plannings,
             congesEnAttente: conges,
-            absencesJour: absents.length,
-            retardsJour,
-            etatPointageManager: aPointe > 0 ? 'Présent' : 'Absent',
-            tauxPointage: tauxPointage,
+            absentsAujourdhui: absencesJour,
+            retardsAujourdhui: retardsJour,
+            etatPointageManager,
+            tauxDePointage: tauxPointage,
+            pointageAujourdhui: etatPointageManager
         });
 
     } catch (err) {
@@ -357,4 +397,39 @@ exports.getHistoriqueArrivees = async (req, res) => {
         res.status(500).json({ message: "Erreur serveur" });
     }
 };
+
+const PDFDocument = require('pdfkit');
+
+exports.exportAbsencesPDF = async (req, res) => {
+    console.log("📄 Génération du PDF...");
+    const db = req.app.get('db');
+
+    try {
+        const [rows] = await db.execute(`
+            SELECT u.nom, u.prenom, COUNT(*) AS absences
+            FROM utilisateurs u
+            LEFT JOIN pointages p ON u.id = p.utilisateur_id
+            WHERE DATE(p.horodatage) IS NULL
+            GROUP BY u.id
+        `);
+
+        const doc = new PDFDocument();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=absences.pdf');
+        doc.pipe(res);
+
+        doc.fontSize(16).text('Liste des absences par utilisateur', { align: 'center' });
+        doc.moveDown();
+
+        rows.forEach((user, index) => {
+            doc.fontSize(12).text(`${index + 1}. ${user.prenom} ${user.nom} - Absences : ${user.absences}`);
+        });
+
+        doc.end();
+    } catch (err) {
+        console.error("Erreur génération PDF :", err);
+        res.status(500).json({ message: "Erreur serveur lors de la génération du PDF." });
+    }
+};
+
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../../styles/App.css'; // ← Nouveau fichier CSS
 
 const formatDate = (date) => {
     if (!date) return '';
@@ -42,43 +43,46 @@ const CongeEmploye = () => {
     };
 
     return (
-        <div className="container">
-            <h2>Demandes de congé des employés</h2>
-            {/* BOUTON RETOUR */}
-            <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
-                ← Retour
-            </button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Employé</th>
-                        <th>Date début</th>
-                        <th>Date fin</th>
-                        <th>Motif</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {demandes.map((d) => (
-                        <tr key={d.id}>
-                            <td>{d.nom}</td>
-                            <td>{formatDate(d.date_debut)}</td>
-                            <td>{formatDate(d.date_fin)}</td>
-                            <td>{d.commentaire || '-'}</td>
-                            <td>{d.statut}</td>
-                            <td>
-                                {d.statut === 'en_attente' && (
-                                    <>
-                                        <button onClick={() => handleUpdate(d.id, 'accepte')}>Accepter</button>
-                                        <button onClick={() => handleUpdate(d.id, 'refuse')}>Refuser</button>
-                                    </>
-                                )}
-                            </td>
+        <div className="conge-container">
+            <h2 className="conge-title">🗓️ Demandes de congé des employés</h2>
+            <button className="btn-retour" onClick={() => navigate(-1)}>← Retour</button>
+            <div className="table-wrapper">
+                <table className="conge-table">
+                    <thead>
+                        <tr>
+                            <th>Employé</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Motif</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {demandes.map((d) => (
+                            <tr key={d.id}>
+                                <td>{d.nom}</td>
+                                <td>{formatDate(d.date_debut)}</td>
+                                <td>{formatDate(d.date_fin)}</td>
+                                <td>{d.commentaire || '-'}</td>
+                                <td className={`statut ${d.statut}`}>{d.statut}</td>
+                                <td>
+                                    {d.statut === 'en_attente' && (
+                                        <div className="btn-group">
+                                            <button className="btn-accept" onClick={() => handleUpdate(d.id, 'accepte')}>
+                                                ✔ Accepter
+                                            </button>
+                                            <button className="btn-refuse" onClick={() => handleUpdate(d.id, 'refuse')}>
+                                                ✖ Refuser
+                                            </button>
+                                        </div>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

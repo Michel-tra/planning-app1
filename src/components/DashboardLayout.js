@@ -33,7 +33,7 @@ function DashboardLayout({ children, role }) {
             case 'pointeur':
                 return (
                     <>
-                        <li><Link to="/pointeur/ScannerBadge"><i className="fa-sharp fa-light fa-rectangle-barcode"></i> Scanner un badge</Link></li>
+                        <li><Link to="/pointeur/ScannerBadge"><i className="fa-duotone fa-solid fa-scanner-touchscreen"></i> Scanner un badge</Link></li>
                         <li><Link to="/pointeur/PointagesHistorique"><i className="fa-solid fa-clock"></i> Historique des pointages</Link></li>
                     </>
                 );
@@ -56,58 +56,55 @@ function DashboardLayout({ children, role }) {
                 return null;
         }
     };
-
     return (
         <div className="layout">
             {/* ✅ Sidebar avec les liens de navigation */}
             <aside className="sidebar">
-                <div className="w-10 h-10">
-                </div>
-                <div className="sidebar-header flex justify-between items-center">
+                {/* En-tête de la sidebar */}
+                <div className="sidebar-header flex justify-between items-center mb-4">
                     <span>{role?.toUpperCase()}</span>
                 </div>
 
+                {/* Infos utilisateur */}
                 {utilisateur && (
-                    <div className="flex items-center justify-between px-4 py-3 bg-blue-900 rounded text-white">
+                    <div className="flex items-center justify-between px-4 py-3 bg-blue-900 rounded text-white mb-4">
                         <div className="flex items-center gap-2">
-                            <User size={18} color="#fff" />
+                            <User size={30} color="#e85d04" />
                             <span className="text-sm font-medium">
-                                {utilisateur.prenom} {utilisateur.nom}
+                                {utilisateur.prenom && <span style={{ color: '#ffffffff', fontSize: '30px' }}>{utilisateur.prenom}</span>} {utilisateur.nom && <span style={{ color: '#ffffffff', fontSize: '30px' }}>{utilisateur.nom}</span>}
                             </span>
                         </div>
                     </div>
                 )}
 
-
+                {/* Liens + bouton déconnexion ensemble */}
                 <ul className="sidebar-links">
                     {renderSidebarLinks()}
+                    <li>
+                        <button className="logout-button" onClick={handleLogout}>
+                            <i className="fas fa-sign-out-alt"></i> Se déconnecter
+                        </button>
+                    </li>
                 </ul>
-
-                <div className="sidebar-footer">
-                    <button onClick={handleLogout}> <i className="fas fa-sign-out-alt"></i> Se déconnecter</button>
-                </div>
             </aside>
 
+            {/* ✅ Contenu principal */}
             <main className="main-content">
-                {/* ✅ Message de bienvenue personnalisé */}
                 {utilisateur && (
-                    <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b">
-                        <p className="text-sm text-gray-700">
-                            👋 Bonjour, <strong>{utilisateur.prenom} {utilisateur.nom}</strong> ! Bienvenue sur votre tableau de bord.
+                    <div className="top-bar">
+                        <p className="welcome-message">
+                            👋 Bonjour, <strong>{utilisateur.prenom} {utilisateur.nom}</strong> ! Bienvenue sur votre espace de travail.
                         </p>
-                        <img
-                            src="/logo.jpeg"
-                            alt="Logo"
-                            style={{ width: '100px', height: '100px', objectFit: 'contain', marginLeft: '800px' }}
-                        />
+                        <div className="logo-container">
+                            <img src="/logoplanning.png" alt="Logo" className="logo-img" />
+                        </div>
                     </div>
                 )}
-
-
 
                 {children}
             </main>
         </div>
+
     );
 }
 

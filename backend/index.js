@@ -40,6 +40,7 @@ app.use('/api/admin', adminRoutes);
 
 // Gestion des erreurs 404  
 app.use((req, res) => {
+    console.log("❌ Route non trouvée :", req.method, req.originalUrl);
     res.status(404).json({ message: 'Route non trouvée' });
 });
 

@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
-
-
+import '../../styles/App.css'; // Fichier CSS séparé
+import { FaClock, FaArrowLeft } from 'react-icons/fa';
 
 function HistoriquePointages() {
     const [pointages, setPointages] = useState([]);
     const utilisateurId = localStorage.getItem('utilisateurId');
     const navigate = useNavigate();
-
 
     useEffect(() => {
         const fetchPointages = async () => {
@@ -23,6 +22,7 @@ function HistoriquePointages() {
 
         fetchPointages();
     }, [utilisateurId]);
+
     const formatLongDate = (isoString) => {
         const date = new Date(isoString);
         return date.toLocaleDateString('fr-FR', {
@@ -32,22 +32,34 @@ function HistoriquePointages() {
             hour: '2-digit',
             minute: '2-digit'
         });
-    }
+    };
 
     return (
         <DashboardLayout role="employe">
-            <h2 className="text-2xl font-bold mb-4">Historique des pointages</h2>
-            {/* BOUTON RETOUR */}
-            <button onClick={() => navigate(-1)} className="mb-4 bg-gray-200 p-2 rounded hover:bg-gray-300 transition">
-                ← Retour
-            </button>
-            <ul className="space-y-3">
-                {pointages.map((p, i) => (
-                    <li key={i} className="bg-white p-3 rounded shadow">
-                        <strong>{p.date}</strong>  {p.type} le {formatLongDate(p.horodatage)}
-                    </li>
-                ))}
-            </ul>
+            <div className="pointages-container">
+                <button className="retour-btn" onClick={() => navigate(-1)}>
+                    <FaArrowLeft /> Retour
+                </button>
+                <h2 className="titre-page">Historique des pointages</h2>
+                <table className="pointages-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Type</th>
+                            <th>Date et heure</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {pointages.map((p, i) => (
+                            <tr key={i}>
+                                <td><FaClock /></td>
+                                <td>{p.type}</td>
+                                <td>{formatLongDate(p.horodatage)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </DashboardLayout>
     );
 }
