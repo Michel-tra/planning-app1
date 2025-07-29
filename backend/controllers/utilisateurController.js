@@ -1,9 +1,9 @@
-// controllers/utilisateurController.js
-
+const utilisateurController = {};
 // On utilise req.app.get('db') pour chaque requête
+
 // === Utilisateurs CRUD & Actions ===
 
-exports.getAllUtilisateurs = async (req, res) => {
+utilisateurController.getAllUtilisateurs = async (req, res) => {
     const db = req.app.get('db');
     try {
         const [rows] = await db.execute(`
@@ -18,7 +18,7 @@ exports.getAllUtilisateurs = async (req, res) => {
     }
 };
 
-exports.getUtilisateurById = async (req, res) => {
+utilisateurController.getUtilisateurById = async (req, res) => {
     const db = req.app.get('db');
     const { id } = req.params;
 
@@ -34,7 +34,7 @@ exports.getUtilisateurById = async (req, res) => {
     }
 };
 
-exports.ajouterUtilisateur = async (req, res) => {
+utilisateurController.ajouterUtilisateur = async (req, res) => {
     const db = req.app.get('db');
     const {
         nom, prenom, email, mot_de_passe, role,
@@ -46,8 +46,8 @@ exports.ajouterUtilisateur = async (req, res) => {
     }
 
     try {
-        await db.execute(`
-            INSERT INTO utilisateurs 
+        await db.execute(
+            `INSERT INTO utilisateurs 
             (nom, prenom, email, mot_de_passe, role, poste, telephone, jour_repos, date_embauche, badge_code)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [nom, prenom, email, mot_de_passe, role, poste, telephone, jour_repos, date_embauche, badge_code]
@@ -59,7 +59,7 @@ exports.ajouterUtilisateur = async (req, res) => {
     }
 };
 
-exports.modifierUtilisateur = async (req, res) => {
+utilisateurController.modifierUtilisateur = async (req, res) => {
     const db = req.app.get('db');
     const utilisateurId = req.params.id;
 
@@ -99,8 +99,7 @@ exports.modifierUtilisateur = async (req, res) => {
     }
 };
 
-// Désactivation d’un utilisateur (Soft Delete)
-exports.supprimerUtilisateur = async (req, res) => {
+utilisateurController.supprimerUtilisateur = async (req, res) => {
     const db = req.app.get('db');
     const utilisateurId = req.params.id;
 
@@ -122,8 +121,7 @@ exports.supprimerUtilisateur = async (req, res) => {
     }
 };
 
-// Changement de rôle d’un utilisateur
-exports.changerRole = async (req, res) => {
+utilisateurController.changerRole = async (req, res) => {
     const db = req.app.get('db');
     const { id } = req.params;
     const { role } = req.body;
@@ -144,11 +142,12 @@ exports.changerRole = async (req, res) => {
     }
 };
 
-// Activation / Désactivation utilisateur
-exports.toggleStatus = async (req, res) => {
+utilisateurController.toggleStatus = async (req, res) => {
+    console.log("🔥 Requête reçue pour modifier le statut !");
     const db = req.app.get('db');
     const { id } = req.params;
     const { actif } = req.body;
+    console.log(`🔁 Changement de statut utilisateur ID=${id}, actif=${actif}`);
 
     if (typeof actif === 'undefined') {
         return res.status(400).json({ message: "Valeur du statut requise (1 ou 0)" });
@@ -169,3 +168,5 @@ exports.toggleStatus = async (req, res) => {
         res.status(500).json({ message: "Erreur serveur lors du changement de statut." });
     }
 };
+
+module.exports = utilisateurController;

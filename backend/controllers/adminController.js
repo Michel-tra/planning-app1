@@ -1,3 +1,6 @@
+// controllers/adminController.js
+// Contrôleur administratif : gère les statistiques, les congés et les journaux d'activité des utilisateurs (employés, managers, etc.)
+
 const { enregistrerActivite } = require('../utils/logAction');  // Si nécessaire
 
 // 📊 Statistiques générales pour le tableau de bord admin

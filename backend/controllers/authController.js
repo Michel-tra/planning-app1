@@ -20,11 +20,13 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
 
+        // ❌ Vérifie si le compte est désactivé
         if (user.actif === 0) {
             await enregistrerActivite(connection, user.id, 'Tentative de connexion - compte désactivé');
             return res.status(403).json({ message: 'Compte désactivé. Veuillez contacter un administrateur.' });
         }
 
+        // ✅ Mise à jour de la connexion
         await connection.execute(
             'UPDATE utilisateurs SET est_connecte = 1, dernier_login = NOW() WHERE id = ?',
             [user.id]

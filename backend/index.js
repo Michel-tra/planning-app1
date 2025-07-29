@@ -12,10 +12,6 @@ const utilisateurRoutes = require('./routes/utilisateurRoutes');
 const historiqueRoutes = require('./routes/historiqueRoutes')(db);
 const adminRoutes = require('./routes/adminRoutes');
 const statsRoutes = require('./routes/statsRoutes');
-<<<<<<< HEAD
-=======
-
->>>>>>> 24d514b8 (20/06/2025)
 
 // Initialisation de l'application Express
 const app = express();
@@ -43,12 +39,7 @@ app.use('/api/historique', historiqueRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 
-<<<<<<< HEAD
 // Gestion des erreurs 404
-=======
-
-// Gestion des erreurs 404  
->>>>>>> 24d514b8 (20/06/2025)
 app.use((req, res) => {
     console.log("❌ Route non trouvée :", req.method, req.originalUrl);
     res.status(404).json({ message: 'Route non trouvée' });
@@ -56,5 +47,5 @@ app.use((req, res) => {
 
 // Lancement du serveur
 app.listen(port, () => {
-    console.log(`Serveur backend démarré sur le port ${port}`);
+    console.log(`🚀 Serveur backend démarré sur le port ${port}`);
 });

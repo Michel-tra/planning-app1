@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import '../../styles/App.css'; // Assure-toi que ce chemin est correct
 
 function ScannerBadge() {
     const [badge, setBadge] = useState('');
     const [message, setMessage] = useState('');
     const inputRef = useRef(null);
+    const navigate = useNavigate();
 
     const playBeep = (success = true) => {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = ctx.createOscillator();
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(success ? 600 : 200, ctx.currentTime); // 600 Hz pour success, 200 Hz pour erreur
+        oscillator.frequency.setValueAtTime(success ? 600 : 200, ctx.currentTime);
         oscillator.connect(ctx.destination);
         oscillator.start();
-        oscillator.stop(ctx.currentTime + (success ? 0.2 : 0.5)); // 0.2s pour success, 0.5s pour erreur
+        oscillator.stop(ctx.currentTime + (success ? 0.2 : 0.5));
     };
 
     const handleScan = async (badgeCode) => {
@@ -42,55 +45,26 @@ function ScannerBadge() {
     }, []);
 
     return (
-        <div style={styles.container}>
-            <div style={styles.box}>
-                <h2 style={styles.title}>Scanner un badge</h2>
+        <div className="scanner-container">
+            <div className="scanner-box">
+                <button className="back-btn" onClick={() => navigate('/pointeur')}>
+                    ⬅ Retour au Dashboard
+                </button>
+
+                <h2 className="scanner-title">🔍 Scanner un badge</h2>
                 <input
                     type="text"
                     ref={inputRef}
                     value={badge}
                     onChange={(e) => setBadge(e.target.value)}
                     placeholder="Scannez ici..."
-                    style={styles.input}
+                    className="scanner-input"
                     autoFocus
                 />
-                {message && <p style={styles.message}>{message}</p>}
+                {message && <p className="scanner-message">{message}</p>}
             </div>
         </div>
     );
 }
-
-const styles = {
-    container: {
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: '#f7f7f7',
-    },
-    box: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '2rem',
-        borderRadius: '10px',
-        background: '#fff',
-        boxShadow: '0 0 15px rgba(0,0,0,0.1)',
-    },
-    title: {
-        marginBottom: '1rem',
-    },
-    input: {
-        padding: '0.7rem',
-        fontSize: '1.2rem',
-        width: '300px',
-        textAlign: 'center',
-    },
-    message: {
-        marginTop: '1rem',
-        color: 'green',
-        fontWeight: 'bold',
-    },
-};
 
 export default ScannerBadge;
