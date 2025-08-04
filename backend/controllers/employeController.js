@@ -1,6 +1,12 @@
-const getAllEmployes = async (req, res, db) => {
+const getAllEmployes = async (req, res) => {
+    const db = req.app.get('db');
     try {
-        const [rows] = await db.query('SELECT * FROM employes');
+        const [rows] = await db.execute(
+            `SELECT id, nom, prenom, email, telephone, role, jour_repos, 
+                    TIMESTAMPDIFF(YEAR, date_embauche, CURDATE()) AS anciennete
+             FROM utilisateurs
+             WHERE role = 'employe'`
+        );
         res.status(200).json(rows);
     } catch (error) {
         console.error('Erreur getAllEmployes :', error);
@@ -8,12 +14,14 @@ const getAllEmployes = async (req, res, db) => {
     }
 };
 
-const addEmploye = async (req, res, db) => {
-    const { nom, poste, email, telephone, anciennete } = req.body;
+const addEmploye = async (req, res) => {
+    const db = req.app.get('db');
+    const { nom, prenom, email, telephone, jour_repos, date_embauche } = req.body;
     try {
-        await db.query(
-            'INSERT INTO employes (nom, poste, email, telephone, anciennete) VALUES (?, ?, ?, ?, ?)',
-            [nom, poste, email, telephone, anciennete]
+        await db.execute(
+            `INSERT INTO utilisateurs (nom, prenom, email, telephone, role, jour_repos, date_embauche, actif, est_connecte)
+             VALUES (?, ?, ?, ?, 'employe', ?, ?, 1, 0)`,
+            [nom, prenom, email, telephone, jour_repos, date_embauche]
         );
         res.status(201).json({ message: 'Employé ajouté' });
     } catch (error) {
@@ -22,13 +30,16 @@ const addEmploye = async (req, res, db) => {
     }
 };
 
-const updateEmploye = async (req, res, db) => {
+const updateEmploye = async (req, res) => {
+    const db = req.app.get('db');
     const { id } = req.params;
-    const { nom, poste, email, telephone, anciennete } = req.body;
+    const { nom, prenom, email, telephone, jour_repos, date_embauche } = req.body;
     try {
-        await db.query(
-            'UPDATE employes SET nom = ?, poste = ?, email = ?, telephone = ?, anciennete = ? WHERE id = ?',
-            [nom, poste, email, telephone, anciennete, id]
+        await db.execute(
+            `UPDATE utilisateurs 
+             SET nom = ?, prenom = ?, email = ?, telephone = ?, jour_repos = ?, date_embauche = ? 
+             WHERE id = ? AND role = 'employe'`,
+            [nom, prenom, email, telephone, jour_repos, date_embauche, id]
         );
         res.status(200).json({ message: 'Employé mis à jour' });
     } catch (error) {
@@ -37,49 +48,48 @@ const updateEmploye = async (req, res, db) => {
     }
 };
 
-const deleteEmploye = async (req, res, db) => {
+const deleteEmploye = async (req, res) => {
+    const db = req.app.get('db');
     const { id } = req.params;
     try {
-        await db.query('DELETE FROM employes WHERE id = ?', [id]);
+        await db.execute('DELETE FROM utilisateurs WHERE id = ? AND role = "employe"', [id]);
         res.status(200).json({ message: 'Employé supprimé' });
     } catch (error) {
         console.error('Erreur deleteEmploye :', error);
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };
-const getResumeEmploye = async (req, res, db) => {
+
+const getResumeEmploye = async (req, res) => {
+    const db = req.app.get('db');
     const utilisateurId = req.params.id;
 
     try {
-        // Compter les plannings de l'utilisateur
-        const [plannings] = await db.query(
-            'SELECT COUNT(*) AS total FROM plannings WHERE utilisateur_id = ?',
+        const [[{ totalPlannings }]] = await db.execute(
+            'SELECT COUNT(*) AS totalPlannings FROM plannings WHERE utilisateur_id = ?',
             [utilisateurId]
         );
 
-        // Compter les demandes de congé de l'utilisateur
-        const [conges] = await db.query(
-            'SELECT COUNT(*) AS total FROM demandes_conge WHERE utilisateur_id = ?',
+        const [[{ totalConges }]] = await db.execute(
+            'SELECT COUNT(*) AS totalConges FROM demandes_conge WHERE utilisateur_id = ?',
             [utilisateurId]
         );
 
-        // Compter les pointages de l'utilisateur
-        const [pointages] = await db.query(
-            'SELECT COUNT(*) AS total FROM pointages WHERE utilisateur_id = ?',
+        const [[{ totalPointages }]] = await db.execute(
+            'SELECT COUNT(*) AS totalPointages FROM pointages WHERE utilisateur_id = ?',
             [utilisateurId]
         );
 
         res.status(200).json({
-            totalPlannings: plannings[0].total,
-            totalConges: conges[0].total,
-            totalPointages: pointages[0].total
+            totalPlannings,
+            totalConges,
+            totalPointages
         });
     } catch (error) {
         console.error('Erreur getResumeEmploye :', error);
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };
-
 
 module.exports = {
     getAllEmployes,

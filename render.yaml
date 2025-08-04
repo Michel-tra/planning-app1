@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: planning-backend
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+
+  - type: web
+    name: planning-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/build

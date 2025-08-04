@@ -1,37 +1,35 @@
 // controllers/adminController.js
-// Contrôleur administratif : gère les statistiques, les congés et les journaux d'activité des utilisateurs (employés, managers, etc.)
+const { enregistrerActivite } = require('../utils/logAction');  // Si nécessaire
 
 // 📊 Statistiques générales pour le tableau de bord admin
 exports.getAdminStats = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        // Nombre total d'utilisateurs
-        const [[{ totalUtilisateurs }]] = await db.execute(
+        const connection = await db.getConnection();
+
+        const [[{ totalUtilisateurs }]] = await connection.execute(
             'SELECT COUNT(*) AS totalUtilisateurs FROM utilisateurs'
         );
 
-        // Nombre d'utilisateurs connectés actuellement
-        const [[{ connectes }]] = await db.execute(
+        const [[{ connectes }]] = await connection.execute(
             'SELECT COUNT(*) AS connectes FROM utilisateurs WHERE est_connecte = 1'
         );
 
-        // Répartition des utilisateurs selon leur rôle (employé, manager, etc.)
-        const [repartition] = await db.execute(
-            `SELECT role, COUNT(*) AS total FROM utilisateurs GROUP BY role`
+        const [repartition] = await connection.execute(
+            'SELECT role, COUNT(*) AS total FROM utilisateurs GROUP BY role'
         );
 
-        // Nombre de demandes de congés en attente
-        const [[{ congesEnAttente }]] = await db.execute(
+        const [[{ congesEnAttente }]] = await connection.execute(
             "SELECT COUNT(*) AS congesEnAttente FROM demandes_conge WHERE statut = 'en_attente'"
         );
 
-        // Nombre de pointages réalisés aujourd'hui
-        const [[{ pointagesAujourdhui }]] = await db.execute(
+        const [[{ pointagesAujourdhui }]] = await connection.execute(
             "SELECT COUNT(*) AS pointagesAujourdhui FROM pointages WHERE DATE(horodatage) = CURDATE()"
         );
 
-        // Réponse JSON contenant toutes les statistiques
+        connection.release();  // ✅ Relâche la connexion
+
         res.json({
             totalUtilisateurs,
             connectes,
@@ -39,6 +37,7 @@ exports.getAdminStats = async (req, res) => {
             congesEnAttente,
             pointagesAujourdhui
         });
+
     } catch (error) {
         console.error('Erreur admin stats:', error);
         res.status(500).json({ message: "Erreur lors de la récupération des statistiques." });
@@ -50,15 +49,20 @@ exports.getRecentLogs = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        // Récupère les 10 dernières lignes du journal d’activité avec nom, prénom, rôle
-        const [logs] = await db.execute(`
+        const connection = await db.getConnection();
+
+        const [logs] = await connection.execute(`
             SELECT ja.*, u.nom, u.prenom, u.role 
             FROM journal_activite ja
             JOIN utilisateurs u ON ja.utilisateur_id = u.id
             ORDER BY ja.date_action DESC
             LIMIT 10
         `);
+
+        connection.release();
+
         res.json(logs);
+
     } catch (error) {
         console.error("Erreur récupération journal activité :", error);
         res.status(500).json({ message: "Erreur serveur lors de la récupération du journal." });
@@ -71,8 +75,9 @@ exports.getCongesParUtilisateur = async (req, res) => {
     const annee = req.query.annee || new Date().getFullYear();
 
     try {
-        const [rows] = await db.execute(
-            `
+        const connection = await db.getConnection();
+
+        const [rows] = await connection.execute(`
             SELECT 
                 u.nom,
                 MONTH(dc.date_debut) AS mois,
@@ -82,17 +87,13 @@ exports.getCongesParUtilisateur = async (req, res) => {
             WHERE dc.statut = 'accepte' AND YEAR(dc.date_debut) = ?
             GROUP BY u.nom, mois
             ORDER BY mois
-            `,
-            [annee]
-        );
+        `, [annee]);
 
-        // Liste des noms des mois pour affichage lisible
-        const moisNoms = [
-            '', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-        ];
+        connection.release();
 
-        // Transformation du résultat avec noms de mois
+        const moisNoms = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
         const result = rows.map(row => ({
             nom: row.nom,
             mois: moisNoms[row.mois],
@@ -100,6 +101,7 @@ exports.getCongesParUtilisateur = async (req, res) => {
         }));
 
         res.json(result);
+
     } catch (error) {
         console.error("Erreur congés par utilisateur :", error);
         res.status(500).json({ message: "Erreur serveur lors du chargement des congés." });
@@ -109,10 +111,11 @@ exports.getCongesParUtilisateur = async (req, res) => {
 // 🎉 Utilisateurs ayant droit à un congé (≥ 1 an d'ancienneté)
 exports.getDroitCongesParAnciennete = async (req, res) => {
     const db = req.app.get('db');
-    const annee = req.query.annee || new Date().getFullYear();
 
     try {
-        const [rows] = await db.execute(`
+        const connection = await db.getConnection();
+
+        const [rows] = await connection.execute(`
             SELECT 
                 id, nom, prenom, date_embauche,
                 TIMESTAMPDIFF(YEAR, date_embauche, CURDATE()) AS anciennete
@@ -121,7 +124,10 @@ exports.getDroitCongesParAnciennete = async (req, res) => {
               AND TIMESTAMPDIFF(YEAR, date_embauche, CURDATE()) >= 1
         `);
 
+        connection.release();
+
         res.json(rows);
+
     } catch (error) {
         console.error("Erreur droits congés :", error);
         res.status(500).json({ message: "Erreur récupération des droits à congé." });
@@ -133,7 +139,9 @@ exports.getCongesParAnnee = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        const [rows] = await db.execute(`
+        const connection = await db.getConnection();
+
+        const [rows] = await connection.execute(`
             SELECT 
                 YEAR(date_debut) AS annee, 
                 COUNT(*) AS total
@@ -143,7 +151,10 @@ exports.getCongesParAnnee = async (req, res) => {
             ORDER BY annee ASC
         `);
 
+        connection.release();
+
         res.json(rows);
+
     } catch (error) {
         console.error("Erreur récupération congés par année :", error);
         res.status(500).json({ message: "Erreur serveur lors du chargement des congés par année." });
@@ -155,7 +166,9 @@ exports.getCongesParUtilisateurParAnnee = async (req, res) => {
     const db = req.app.get('db');
 
     try {
-        const [rows] = await db.execute(`
+        const connection = await db.getConnection();
+
+        const [rows] = await connection.execute(`
             SELECT 
                 u.nom,
                 YEAR(dc.date_debut) AS annee,
@@ -167,7 +180,10 @@ exports.getCongesParUtilisateurParAnnee = async (req, res) => {
             ORDER BY annee ASC
         `);
 
+        connection.release();
+
         res.json(rows);
+
     } catch (error) {
         console.error("Erreur congés par utilisateur et année :", error);
         res.status(500).json({ message: "Erreur serveur lors de la récupération des congés par utilisateur." });
@@ -180,6 +196,8 @@ exports.getTotalCongesParUtilisateur = async (req, res) => {
     const annee = req.query.annee;
 
     try {
+        const connection = await db.getConnection();
+
         const query = `
             SELECT 
                 CONCAT(u.nom, ' ', u.prenom) AS nom,
@@ -194,10 +212,13 @@ exports.getTotalCongesParUtilisateur = async (req, res) => {
         `;
 
         const [rows] = annee
-            ? await db.execute(query, [annee])
-            : await db.execute(query);
+            ? await connection.execute(query, [annee])
+            : await connection.execute(query);
+
+        connection.release();
 
         res.json(rows);
+
     } catch (error) {
         console.error("Erreur congés totaux par utilisateur :", error);
         res.status(500).json({ message: "Erreur lors de la récupération." });
@@ -210,6 +231,8 @@ exports.getCongesParBeneficiaire = async (req, res) => {
     const annee = req.query.annee;
 
     try {
+        const connection = await db.getConnection();
+
         const query = `
             SELECT 
                 CONCAT(u.nom, ' ', u.prenom) AS nom,
@@ -224,10 +247,13 @@ exports.getCongesParBeneficiaire = async (req, res) => {
         `;
 
         const [rows] = annee && annee !== 'tous'
-            ? await db.execute(query, [annee])
-            : await db.execute(query);
+            ? await connection.execute(query, [annee])
+            : await connection.execute(query);
+
+        connection.release();
 
         res.json(rows);
+
     } catch (error) {
         console.error("Erreur congés par bénéficiaire :", error);
         res.status(500).json({ message: "Erreur lors de la récupération des congés." });

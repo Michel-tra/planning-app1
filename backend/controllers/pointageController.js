@@ -1,10 +1,10 @@
-const db = require('../config/db'); // mysql2/promise
-const PDFDocument = require('pdfkit');
+const PDFDocument = ../../ AppgestH / config / dbkit');
 
-// Récupérer tous les pointages
+// ✅ Récupérer tous les pointages
 exports.getPointages = async (req, res) => {
+    const db = req.app.get('db');
     try {
-        const [results] = await db.query(`
+        const [results] = await db.execute(`
             SELECT p.id, p.utilisateur_id, u.nom AS nom_utilisateur, p.type, p.horodatage
             FROM pointages p
             JOIN utilisateurs u ON p.utilisateur_id = u.id
@@ -17,8 +17,9 @@ exports.getPointages = async (req, res) => {
     }
 };
 
-// Ajouter manuellement un pointage (admin/manager)
+// ✅ Ajouter manuellement un pointage (admin/manager)
 exports.ajouterPointage = async (req, res) => {
+    const db = req.app.get('db');
     const { utilisateur_id, type } = req.body;
 
     if (!utilisateur_id || !type) {
@@ -26,7 +27,7 @@ exports.ajouterPointage = async (req, res) => {
     }
 
     try {
-        const [lastPointage] = await db.query(
+        const [lastPointage] = await db.execute(
             `SELECT type FROM pointages 
              WHERE utilisateur_id = ? 
              AND DATE(horodatage) = CURDATE() 
@@ -39,7 +40,7 @@ exports.ajouterPointage = async (req, res) => {
             return res.status(409).json({ message: `Vous avez déjà pointé "${type}" récemment.` });
         }
 
-        await db.query(
+        await db.execute(
             'INSERT INTO pointages (utilisateur_id, type, horodatage) VALUES (?, ?, NOW())',
             [utilisateur_id, type]
         );
@@ -50,16 +51,18 @@ exports.ajouterPointage = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur.' });
     }
 };
-console.log("✅ Fonctions exportées :", module.exports);
 
-
-// Pointage automatique via badge (entrée/sortie)
+// ✅ Pointage automatique via badge
 exports.pointerAvecBadge = async (req, res) => {
+    const db = req.app.get('db');
     const { badge_code } = req.body;
 
+    if (!badge_code) {
+        return res.status(400).json({ message: 'Badge code requis.' });
+    }
+
     try {
-        // 1. Trouver l'utilisateur
-        const [users] = await db.query(
+        const [users] = await db.execute(
             'SELECT id, nom FROM utilisateurs WHERE badge_code = ?',
             [badge_code]
         );
@@ -68,36 +71,27 @@ exports.pointerAvecBadge = async (req, res) => {
             return res.status(404).json({ message: 'Badge non reconnu.' });
         }
 
-
-
-
         const utilisateur = users[0];
-        console.log("🔔 Badge scanné :", badge_code);
 
-        // 2. Récupérer le dernier pointage d'aujourd'hui
-        const [dernierPointage] = await db.query(
+        const [dernierPointage] = await db.execute(
             `SELECT type FROM pointages
              WHERE utilisateur_id = ? AND DATE(horodatage) = CURDATE()
              ORDER BY horodatage DESC
              LIMIT 1`,
             [utilisateur.id]
         );
-        console.log("📦 Dernier pointage du jour :", dernierPointage);
-        // 3. Déterminer le type de pointage
+
         let type = 'entrée';
         if (dernierPointage.length > 0 && dernierPointage[0].type.toLowerCase() === 'entree') {
             type = 'sortie';
         }
 
-        console.log("🧭 Type décidé :", type);
-
-        // 4. Enregistrer le pointage
-        await db.query(
+        await db.execute(
             'INSERT INTO pointages (utilisateur_id, type, horodatage) VALUES (?, ?, NOW())',
             [utilisateur.id, type === 'entrée' ? 'entree' : 'sortie']
         );
-        console.log("✅ Pointage enregistré pour :", utilisateur.nom);
-        return res.json({ message: `Pointage "${type}" enregistré pour ${utilisateur.nom}` });
+
+        res.json({ message: `Pointage "${type}" enregistré pour ${utilisateur.nom}` });
 
     } catch (error) {
         console.error('Erreur serveur :', error);
@@ -105,8 +99,9 @@ exports.pointerAvecBadge = async (req, res) => {
     }
 };
 
-// Export PDF des pointages pour un utilisateur
+// ✅ Export PDF des pointages pour un utilisateur
 exports.exportPointagesPDF = async (req, res) => {
+    const db = req.app.get('db');
     const utilisateur_id = req.query.utilisateur_id;
 
     if (!utilisateur_id) {
@@ -114,7 +109,7 @@ exports.exportPointagesPDF = async (req, res) => {
     }
 
     try {
-        const [rows] = await db.query(`
+        const [rows] = await db.execute(`
             SELECT p.id, u.nom AS nom_utilisateur, p.type, p.horodatage
             FROM pointages p
             JOIN utilisateurs u ON p.utilisateur_id = u.id
@@ -123,7 +118,6 @@ exports.exportPointagesPDF = async (req, res) => {
         `, [utilisateur_id]);
 
         const doc = new PDFDocument();
-
         res.setHeader('Content-Disposition', 'attachment; filename=mes_pointages.pdf');
         res.setHeader('Content-Type', 'application/pdf');
         doc.pipe(res);
@@ -131,7 +125,7 @@ exports.exportPointagesPDF = async (req, res) => {
         doc.fontSize(18).text('Mes Pointages', { align: 'center' }).moveDown();
 
         rows.forEach(p => {
-            doc.fontSize(12).text(`Nom: ${p.utilisateur}`);
+            doc.fontSize(12).text(`Nom: ${p.nom_utilisateur}`);
             doc.text(`Type: ${p.type}`);
             doc.text(`Date: ${new Date(p.horodatage).toLocaleString()}`);
             doc.moveDown();
@@ -144,8 +138,9 @@ exports.exportPointagesPDF = async (req, res) => {
     }
 };
 
-// Filtrer par date (optionnel)
+// ✅ Filtrer les pointages par date
 exports.getPointagesAvecFiltre = async (req, res) => {
+    const db = req.app.get('db');
     const { date } = req.query;
 
     let query = `
@@ -163,19 +158,21 @@ exports.getPointagesAvecFiltre = async (req, res) => {
     query += ` ORDER BY p.horodatage DESC`;
 
     try {
-        const [rows] = await db.query(query, params);
+        const [rows] = await db.execute(query, params);
         res.json(rows);
     } catch (err) {
         console.error('Erreur récupération pointages filtrés :', err);
         res.status(500).json({ message: 'Erreur lors de la récupération des pointages.' });
     }
 };
+
+// ✅ Récupérer le résumé du jour d’un utilisateur
 exports.resumeDuJour = async (req, res) => {
+    const db = req.app.get('db');
     const utilisateur_id = req.params.id;
 
     try {
-        // Récupérer les pointages du jour
-        const [pointages] = await db.query(
+        const [pointages] = await db.execute(
             `SELECT type, horodatage
              FROM pointages
              WHERE utilisateur_id = ? AND DATE(horodatage) = CURDATE()
@@ -183,8 +180,7 @@ exports.resumeDuJour = async (req, res) => {
             [utilisateur_id]
         );
 
-        // Récupérer le planning du jour
-        const [planning] = await db.query(
+        const [planning] = await db.execute(
             `SELECT date, heure_debut, heure_fin, description
              FROM plannings
              WHERE utilisateur_id = ? AND DATE(date) = CURDATE()
@@ -192,8 +188,7 @@ exports.resumeDuJour = async (req, res) => {
             [utilisateur_id]
         );
 
-        // Récupérer les congés du jour
-        const [conges] = await db.query(
+        const [conges] = await db.execute(
             `SELECT date_debut, date_fin, statut
              FROM demandes_conge
              WHERE utilisateur_id = ?
@@ -203,7 +198,6 @@ exports.resumeDuJour = async (req, res) => {
             [utilisateur_id]
         );
 
-        // Formater les données
         const formatDate = (isoDate) => {
             const d = new Date(isoDate);
             return d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -234,10 +228,12 @@ exports.resumeDuJour = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la récupération du résumé du jour." });
     }
 };
-// Récupérer l'historique des pointages d’un employé
+
+// ✅ Historique des pointages d’un utilisateur
 exports.getHistoriquePointages = async (req, res) => {
-    const utilisateurId = req.params.id;
     const db = req.app.get('db');
+    const utilisateurId = req.params.id;
+
     try {
         const [rows] = await db.execute(
             'SELECT * FROM pointages WHERE utilisateur_id = ? ORDER BY horodatage DESC',

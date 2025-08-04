@@ -1,9 +1,10 @@
 // controllers/historiqueController.js
 
-const getHistoriquePointages = async (req, res, db) => {
+exports.getHistoriquePointages = async (req, res) => {
+    const db = req.app.get('db');
     const { utilisateurId } = req.params;
     try {
-        const [rows] = await db.query(
+        const [rows] = await db.execute(
             'SELECT * FROM pointages WHERE utilisateur_id = ? ORDER BY horodatage DESC',
             [utilisateurId]
         );
@@ -14,10 +15,11 @@ const getHistoriquePointages = async (req, res, db) => {
     }
 };
 
-const getHistoriquePlannings = async (req, res, db) => {
+exports.getHistoriquePlannings = async (req, res) => {
+    const db = req.app.get('db');
     const { utilisateurId } = req.params;
     try {
-        const [rows] = await db.query(
+        const [rows] = await db.execute(
             'SELECT * FROM plannings WHERE utilisateur_id = ? ORDER BY date DESC',
             [utilisateurId]
         );
@@ -28,10 +30,11 @@ const getHistoriquePlannings = async (req, res, db) => {
     }
 };
 
-const getHistoriqueConges = async (req, res, db) => {
+exports.getHistoriqueConges = async (req, res) => {
+    const db = req.app.get('db');
     const { utilisateurId } = req.params;
     try {
-        const [rows] = await db.query(
+        const [rows] = await db.execute(
             'SELECT * FROM demandes_conge WHERE utilisateur_id = ? ORDER BY date_debut DESC',
             [utilisateurId]
         );
@@ -40,10 +43,4 @@ const getHistoriqueConges = async (req, res, db) => {
         console.error('Erreur getHistoriqueConges :', error);
         res.status(500).json({ message: 'Erreur serveur' });
     }
-};
-
-module.exports = {
-    getHistoriquePointages,
-    getHistoriquePlannings,
-    getHistoriqueConges,
 };
