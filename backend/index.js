@@ -27,7 +27,7 @@ app.set('db', db);
 app.use(cors());
 app.use(express.json());
 
-// Routes API
+// ================= Routes API =================
 app.use('/api/login', authRoutes(db));
 app.use('/api/plannings', planningRoutes);
 app.use('/api/employes', employeRoutes);
@@ -38,10 +38,10 @@ app.use('/api/historique', historiqueRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 
-// === SERVE REACT FRONTEND BUILD ===
+// ============ SERVE REACT FRONTEND BUILD ============
 app.use(express.static(path.join(__dirname, 'build')));
 
-// SPA React fallback
+// SPA React fallback (pour React Router)
 app.get('*', (req, res) => {
     if (req.originalUrl.startsWith('/api')) {
         console.log("❌ Route API non trouvée :", req.method, req.originalUrl);
@@ -51,7 +51,7 @@ app.get('*', (req, res) => {
     }
 });
 
-// Start server
+// Démarrer le serveur
 app.listen(port, () => {
     console.log(`🚀 Serveur backend démarré sur le port ${port}`);
 });

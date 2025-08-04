@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const getAllEmployes = async (req, res) => {
     const db = req.app.get('db');
     try {
@@ -13,6 +14,17 @@ const getAllEmployes = async (req, res, db) => {
     try {
         const [rows] = await db.query('SELECT * FROM employes');
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+const getAllEmployes = async (req, res) => {
+    const db = req.app.get('db');
+    try {
+        const [rows] = await db.execute(
+            `SELECT id, nom, prenom, email, telephone, role, jour_repos, 
+                    TIMESTAMPDIFF(YEAR, date_embauche, CURDATE()) AS anciennete
+             FROM utilisateurs
+             WHERE role = 'employe'`
+        );
+>>>>>>> 1d7a665b (correction)
         res.status(200).json(rows);
     } catch (error) {
         console.error('Erreur getAllEmployes :', error);
@@ -20,6 +32,7 @@ const getAllEmployes = async (req, res, db) => {
     }
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 const addEmploye = async (req, res) => {
     const db = req.app.get('db');
@@ -37,6 +50,16 @@ const addEmploye = async (req, res, db) => {
             'INSERT INTO employes (nom, poste, email, telephone, anciennete) VALUES (?, ?, ?, ?, ?)',
             [nom, poste, email, telephone, anciennete]
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+const addEmploye = async (req, res) => {
+    const db = req.app.get('db');
+    const { nom, prenom, email, telephone, jour_repos, date_embauche } = req.body;
+    try {
+        await db.execute(
+            `INSERT INTO utilisateurs (nom, prenom, email, telephone, role, jour_repos, date_embauche, actif, est_connecte)
+             VALUES (?, ?, ?, ?, 'employe', ?, ?, 1, 0)`,
+            [nom, prenom, email, telephone, jour_repos, date_embauche]
+>>>>>>> 1d7a665b (correction)
         );
         res.status(201).json({ message: 'Employé ajouté' });
     } catch (error) {
@@ -45,6 +68,7 @@ const addEmploye = async (req, res, db) => {
     }
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 const updateEmploye = async (req, res) => {
     const db = req.app.get('db');
@@ -58,13 +82,25 @@ const updateEmploye = async (req, res) => {
             [nom, prenom, email, telephone, jour_repos, date_embauche, id]
 =======
 const updateEmploye = async (req, res, db) => {
+=======
+const updateEmploye = async (req, res) => {
+    const db = req.app.get('db');
+>>>>>>> 1d7a665b (correction)
     const { id } = req.params;
-    const { nom, poste, email, telephone, anciennete } = req.body;
+    const { nom, prenom, email, telephone, jour_repos, date_embauche } = req.body;
     try {
+<<<<<<< HEAD
         await db.query(
             'UPDATE employes SET nom = ?, poste = ?, email = ?, telephone = ?, anciennete = ? WHERE id = ?',
             [nom, poste, email, telephone, anciennete, id]
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+        await db.execute(
+            `UPDATE utilisateurs 
+             SET nom = ?, prenom = ?, email = ?, telephone = ?, jour_repos = ?, date_embauche = ? 
+             WHERE id = ? AND role = 'employe'`,
+            [nom, prenom, email, telephone, jour_repos, date_embauche, id]
+>>>>>>> 1d7a665b (correction)
         );
         res.status(200).json({ message: 'Employé mis à jour' });
     } catch (error) {
@@ -73,6 +109,7 @@ const updateEmploye = async (req, res, db) => {
     }
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 const deleteEmploye = async (req, res) => {
     const db = req.app.get('db');
@@ -85,6 +122,13 @@ const deleteEmploye = async (req, res, db) => {
     try {
         await db.query('DELETE FROM employes WHERE id = ?', [id]);
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+const deleteEmploye = async (req, res) => {
+    const db = req.app.get('db');
+    const { id } = req.params;
+    try {
+        await db.execute('DELETE FROM utilisateurs WHERE id = ? AND role = "employe"', [id]);
+>>>>>>> 1d7a665b (correction)
         res.status(200).json({ message: 'Employé supprimé' });
     } catch (error) {
         console.error('Erreur deleteEmploye :', error);
@@ -93,6 +137,9 @@ const deleteEmploye = async (req, res, db) => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1d7a665b (correction)
 const getResumeEmploye = async (req, res) => {
     const db = req.app.get('db');
     const utilisateurId = req.params.id;
@@ -124,8 +171,11 @@ const getResumeEmploye = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
 =======
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+>>>>>>> 1d7a665b (correction)
 module.exports = {
     getAllEmployes,
     addEmploye,

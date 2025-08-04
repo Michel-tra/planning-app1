@@ -1,8 +1,9 @@
-const utilisateurController = {};
 // On utilise req.app.get('db') pour chaque requête
+const utilisateurController = {};
 
 // === Utilisateurs CRUD & Actions ===
 
+// 1. Récupérer tous les utilisateurs
 utilisateurController.getAllUtilisateurs = async (req, res) => {
     const db = req.app.get('db');
     try {
@@ -18,6 +19,7 @@ utilisateurController.getAllUtilisateurs = async (req, res) => {
     }
 };
 
+// 2. Récupérer un utilisateur par ID
 utilisateurController.getUtilisateurById = async (req, res) => {
     const db = req.app.get('db');
     const { id } = req.params;
@@ -34,6 +36,7 @@ utilisateurController.getUtilisateurById = async (req, res) => {
     }
 };
 
+// 3. Ajouter un utilisateur
 utilisateurController.ajouterUtilisateur = async (req, res) => {
     const db = req.app.get('db');
     const {
@@ -46,8 +49,8 @@ utilisateurController.ajouterUtilisateur = async (req, res) => {
     }
 
     try {
-        await db.execute(
-            `INSERT INTO utilisateurs 
+        await db.execute(`
+            INSERT INTO utilisateurs 
             (nom, prenom, email, mot_de_passe, role, poste, telephone, jour_repos, date_embauche, badge_code)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [nom, prenom, email, mot_de_passe, role, poste, telephone, jour_repos, date_embauche, badge_code]
@@ -59,6 +62,7 @@ utilisateurController.ajouterUtilisateur = async (req, res) => {
     }
 };
 
+// 4. Modifier un utilisateur
 utilisateurController.modifierUtilisateur = async (req, res) => {
     const db = req.app.get('db');
     const utilisateurId = req.params.id;
@@ -99,6 +103,7 @@ utilisateurController.modifierUtilisateur = async (req, res) => {
     }
 };
 
+// 5. Désactiver un utilisateur (Soft Delete)
 utilisateurController.supprimerUtilisateur = async (req, res) => {
     const db = req.app.get('db');
     const utilisateurId = req.params.id;
@@ -121,6 +126,7 @@ utilisateurController.supprimerUtilisateur = async (req, res) => {
     }
 };
 
+// 6. Changer le rôle d’un utilisateur
 utilisateurController.changerRole = async (req, res) => {
     const db = req.app.get('db');
     const { id } = req.params;
@@ -142,12 +148,11 @@ utilisateurController.changerRole = async (req, res) => {
     }
 };
 
+// 7. Activer/Désactiver un utilisateur (toggleStatus)
 utilisateurController.toggleStatus = async (req, res) => {
-    console.log("🔥 Requête reçue pour modifier le statut !");
     const db = req.app.get('db');
     const { id } = req.params;
     const { actif } = req.body;
-    console.log(`🔁 Changement de statut utilisateur ID=${id}, actif=${actif}`);
 
     if (typeof actif === 'undefined') {
         return res.status(400).json({ message: "Valeur du statut requise (1 ou 0)" });

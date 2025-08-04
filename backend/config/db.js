@@ -1,9 +1,9 @@
-// backend/config/db.js
 const mysql = require('mysql2/promise');
 <<<<<<< HEAD
 require('dotenv').config();
 
 const pool = mysql.createPool({
+<<<<<<< HEAD
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -43,3 +43,12 @@ module.exports = {
     getConnection: () => connection
 };
 >>>>>>> 98352656 (Mise à jour : API fix et intégration React build)
+=======
+    uri: process.env.DATABASE_URL,
+    waitForConnections: true,
+    connectionLimit: 10,  // Tu peux ajuster selon le besoin
+    queueLimit: 0
+});
+
+module.exports = pool;
+>>>>>>> 1d7a665b (correction)

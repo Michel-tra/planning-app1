@@ -1,6 +1,9 @@
 const db = require('../config/db');
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1d7a665b (correction)
 // ✅ Récupérer tous les plannings
 const getAll = async (req, res) => {
     const db = req.app.get('db');
@@ -27,6 +30,9 @@ const getAll = async (req, res) => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1d7a665b (correction)
 // ✅ Créer un planning
 const create = async (req, res) => {
     const { utilisateur_id, date, heure_debut, heure_fin, description } = req.body;
@@ -36,6 +42,7 @@ const create = async (req, res) => {
         return res.status(400).json({ message: 'Champs requis manquants' });
     }
 
+<<<<<<< HEAD
     try {
         const [result] = await db.execute(
             `INSERT INTO plannings (utilisateur_id, date, heure_debut, heure_fin, description) VALUES (?, ?, ?, ?, ?)`,
@@ -49,6 +56,12 @@ const create = async (req, res) => {
             'INSERT INTO plannings (utilisateur_id, date, heure_debut, heure_fin) VALUES (?, ?, ?, ?)',
             [utilisateur_id, date, heure_debut, heure_fin]
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+    try {
+        const [result] = await db.execute(
+            `INSERT INTO plannings (utilisateur_id, date, heure_debut, heure_fin, description) VALUES (?, ?, ?, ?, ?)`,
+            [utilisateur_id, date, heure_debut, heure_fin, description]
+>>>>>>> 1d7a665b (correction)
         );
         res.status(201).json({ id: result.insertId });
     } catch (err) {
@@ -58,6 +71,9 @@ const create = async (req, res) => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1d7a665b (correction)
 // ✅ Mettre à jour un planning
 const update = async (req, res) => {
     const { id } = req.params;
@@ -81,6 +97,7 @@ const update = async (req, res) => {
         res.json({ message: 'Planning mis à jour' });
     } catch (err) {
         console.error(err);
+<<<<<<< HEAD
 =======
 const update = async (req, res) => {
     const { id } = req.params;
@@ -94,10 +111,13 @@ const update = async (req, res) => {
         res.json({ message: 'Planning mis à jour' });
     } catch (err) {
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+>>>>>>> 1d7a665b (correction)
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 // ✅ Supprimer un planning
 const remove = async (req, res) => {
@@ -115,19 +135,35 @@ const remove = async (req, res) => {
     } catch (err) {
         console.error(err);
 =======
+=======
+// ✅ Supprimer un planning
+>>>>>>> 1d7a665b (correction)
 const remove = async (req, res) => {
     const { id } = req.params;
-    const database = req.app.get('db');
+    const db = req.app.get('db');
+
     try {
-        await database.execute('DELETE FROM plannings WHERE id = ?', [id]);
+        const [result] = await db.execute('DELETE FROM plannings WHERE id = ?', [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Planning non trouvé' });
+        }
+
         res.json({ message: 'Planning supprimé' });
     } catch (err) {
+<<<<<<< HEAD
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+        console.error(err);
+>>>>>>> 1d7a665b (correction)
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1d7a665b (correction)
 // ✅ Récupérer le planning personnel d'un utilisateur
 const getPlanningPersonnel = async (req, res) => {
     const db = req.app.get('db');
@@ -156,6 +192,9 @@ const getPlanningPersonnel = async (req, res) => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1d7a665b (correction)
 // ✅ Récupérer les plannings d'un utilisateur sur une période
 const getPlanningsParUtilisateurEtPeriode = async (req, res) => {
     const db = req.app.get('db');
@@ -208,9 +247,12 @@ const creerPointage = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
 =======
 // ✅ Export propre à la fin
 >>>>>>> 93f5a34d (PROJETTUTORER)
+=======
+>>>>>>> 1d7a665b (correction)
 module.exports = {
     getAll,
     create,

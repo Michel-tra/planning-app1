@@ -18,13 +18,12 @@ exports.getManagerStats = async (req, res) => {
 
         const nbConnectes = connectes.length;
 
-        // 2. Plannings de la semaine (corrigé avec DATE())
+        // 2. Plannings de la semaine
         const [[{ plannings }]] = await db.execute(`
             SELECT COUNT(*) AS plannings 
             FROM plannings
             WHERE WEEK(DATE(date), 1) = WEEK(CURDATE(), 1)
               AND YEAR(date) = YEAR(CURDATE())
-              AND date IS NOT NULL
         `);
 
         // 3. Congés en attente
@@ -34,7 +33,7 @@ exports.getManagerStats = async (req, res) => {
             WHERE statut = 'en_attente'
         `);
 
-        // 4. Absents aujourd’hui (exclure jours de repos & congés)
+        // 4. Absents aujourd’hui (hors repos et congés)
         const [absents] = await db.execute(`
             SELECT u.id 
             FROM utilisateurs u
@@ -59,7 +58,6 @@ exports.getManagerStats = async (req, res) => {
             SELECT 
                 u.id, 
                 MIN(TIME(p.horodatage)) AS arrivee, 
-                TIMESTAMPDIFF(MINUTE, MIN(p.horodatage), MAX(p.horodatage)) AS duree,
                 pl.heure_debut
             FROM utilisateurs u
             JOIN pointages p ON u.id = p.utilisateur_id AND DATE(p.horodatage) = CURDATE()
@@ -71,9 +69,6 @@ exports.getManagerStats = async (req, res) => {
         retardRows.forEach(user => {
             if (user.heure_debut) {
                 if (user.arrivee > user.heure_debut) retardsJour++;
-            } else {
-                const heures = user.duree ? user.duree / 60 : 0;
-                if (heures < 7) retardsJour++;
             }
         });
 
@@ -88,9 +83,6 @@ exports.getManagerStats = async (req, res) => {
         const etatPointageManager = aPointe > 0 ? 'Présent' : 'Absent';
 
         // 7. Taux de pointage global
-        const [currentDayRow] = await db.execute(`SELECT DAYNAME(CURDATE()) AS jour`);
-        const jourSemaine = currentDayRow[0].jour.toLowerCase();
-
         const [attendus] = await db.execute(`
             SELECT u.id 
             FROM utilisateurs u
@@ -99,8 +91,8 @@ exports.getManagerStats = async (req, res) => {
                AND dc.statut = 'accepte'
                AND CURDATE() BETWEEN dc.date_debut AND dc.date_fin
             WHERE dc.id IS NULL 
-              AND LOWER(u.jour_repos) != ?
-        `, [jourSemaine]);
+              AND LOWER(u.jour_repos) != LOWER(DAYNAME(CURDATE()))
+        `);
 
         const nbAttendus = attendus.length;
 
@@ -136,6 +128,7 @@ exports.getManagerStats = async (req, res) => {
 // ================================
 // Partie : Stats Absences
 // ================================
+
 exports.getAbsencesParMois = async (req, res) => {
     const db = req.app.get('db');
     const annee = req.query.annee || new Date().getFullYear();
@@ -170,29 +163,23 @@ exports.getAbsencesParUtilisateur = async (req, res) => {
     try {
         const [rows] = await db.execute(`
             SELECT 
-                u.id,
-                u.nom,
-                u.prenom,
+                u.id, u.nom, u.prenom,
                 COUNT(DISTINCT d.date) AS total_jours,
-                COUNT(DISTINCT d.date) - COUNT(DISTINCT p_date.date) AS absences,
-                ROUND(100 * (COUNT(DISTINCT d.date) - COUNT(DISTINCT p_date.date)) / COUNT(DISTINCT d.date), 2) AS taux_absence,
-                ROUND(100 * COUNT(DISTINCT p_date.date) / COUNT(DISTINCT d.date), 2) AS taux_presence
+                COUNT(DISTINCT d.date) - COUNT(DISTINCT p.date) AS absences
             FROM utilisateurs u
             CROSS JOIN (
                 SELECT CURDATE() - INTERVAL a DAY AS date
-                FROM (
-                    SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
-                    UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
-                    UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14
-                    UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19
-                    UNION ALL SELECT 20 UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24
-                    UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29
-                ) AS days
+                FROM (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                      UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
+                      UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14
+                      UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19
+                      UNION ALL SELECT 20 UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24
+                      UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29) AS days
             ) d
             LEFT JOIN (
                 SELECT utilisateur_id, DATE(horodatage) AS date
                 FROM pointages
-            ) p_date ON p_date.utilisateur_id = u.id AND p_date.date = d.date
+            ) p ON p.utilisateur_id = u.id AND p.date = d.date
             GROUP BY u.id
         `);
 
@@ -203,10 +190,6 @@ exports.getAbsencesParUtilisateur = async (req, res) => {
     }
 };
 
-
-/**
- * Résumé général des absences (moyenne)
- */
 exports.getResumeAbsences = async (req, res) => {
     const db = req.app.get('db');
 
@@ -272,109 +255,7 @@ exports.getRetardsParUtilisateur = async (req, res) => {
     }
 };
 
-exports.getAbsencesParMoisEtUtilisateur = async (req, res) => {
-    const db = req.app.get('db');
-    const annee = req.query.annee || new Date().getFullYear();
-
-    try {
-        const [rows] = await db.execute(`
-            SELECT 
-                u.nom,
-                u.prenom,
-                MONTH(dc.date_debut) AS mois,
-                COUNT(*) AS total
-            FROM demandes_conge dc
-            JOIN utilisateurs u ON u.id = dc.utilisateur_id
-            WHERE dc.statut = 'accepte' AND YEAR(dc.date_debut) = ?
-            GROUP BY u.id, mois
-            ORDER BY mois, total DESC
-        `, [annee]);
-
-        const moisLabels = [
-            '', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-        ];
-
-        const formatted = rows.map(row => ({
-            mois: moisLabels[row.mois],
-            beneficiaire: `${row.prenom} ${row.nom}`,
-            total: row.total
-        }));
-
-        res.json(formatted);
-    } catch (err) {
-        console.error("Erreur congés par mois et utilisateur :", err);
-        res.status(500).json({ message: "Erreur serveur." });
-    }
-};
-
-exports.getTauxAbsenceUtilisateur = async (req, res) => {
-    const db = req.app.get('db');
-    const utilisateurId = req.params.id;
-
-    try {
-        const [rows] = await db.execute(`
-            SELECT COUNT(DISTINCT d.date) AS total_jours,
-                   COUNT(DISTINCT d.date) - COUNT(DISTINCT p.date) AS absences
-            FROM (
-                SELECT CURDATE() - INTERVAL a DAY AS date
-                FROM (
-                    SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
-                    UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
-                    UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14
-                    UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19
-                    UNION ALL SELECT 20 UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24
-                    UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29
-                ) AS jours
-            ) d
-            LEFT JOIN (
-                SELECT DATE(horodatage) AS date
-                FROM pointages
-                WHERE utilisateur_id = ?
-            ) p ON d.date = p.date
-        `, [utilisateurId]);
-
-        const total = rows[0].total_jours || 1;
-        const abs = rows[0].absences || 0;
-        const presence = total - abs;
-
-        res.json({
-            utilisateur: `Moi`,
-            taux_presence: ((presence / total) * 100).toFixed(2),
-            taux_absence: ((abs / total) * 100).toFixed(2),
-        });
-
-    } catch (err) {
-        console.error("Erreur taux personnel :", err);
-        res.status(500).json({ message: "Erreur serveur" });
-    }
-};
-
-exports.getHistoriqueArrivees = async (req, res) => {
-    const db = req.app.get('db');
-    const utilisateurId = req.params.id;
-
-    try {
-        const [rows] = await db.execute(`
-            SELECT 
-                DATE(horodatage) AS jour,
-                TIME(MIN(horodatage)) AS heure_arrivee
-            FROM pointages
-            WHERE utilisateur_id = ?
-              AND DATE(horodatage) >= CURDATE() - INTERVAL 30 DAY
-            GROUP BY DATE(horodatage)
-            ORDER BY jour ASC
-        `, [utilisateurId]);
-
-        res.json(rows);
-    } catch (err) {
-        console.error("Erreur historique des arrivées :", err);
-        res.status(500).json({ message: "Erreur serveur" });
-    }
-};
-
 exports.exportAbsencesPDF = async (req, res) => {
-    console.log("📄 Génération du PDF...");
     const db = req.app.get('db');
 
     try {
