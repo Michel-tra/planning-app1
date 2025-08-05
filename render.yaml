@@ -1,15 +1,24 @@
 services:
   - type: web
-    name: planning-backend
+    name: app-backend
     env: node
+    plan: free
     buildCommand: cd backend && npm install
     startCommand: cd backend && node index.js
     envVars:
-      - key: NODE_VERSION
-        value: 18
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: JWT_SECRET
+        sync: false
 
   - type: web
-    name: planning-frontend
+    name: app-frontend
     env: static
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/build

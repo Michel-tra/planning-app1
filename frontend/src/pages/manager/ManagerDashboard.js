@@ -72,11 +72,11 @@ function ManagerDashboard() {
                     parUserRes,
                     retardsRes
                 ] = await Promise.all([
-                    axios.get(`http://localhost:5000/api/stats/manager?managerId=${managerId}`),
-                    axios.get(`http://localhost:5000/api/stats/absences-par-mois?annee=${annee}`),
-                    axios.get('http://localhost:5000/api/stats/absences-utilisateurs'),
-                    axios.get(`http://localhost:5000/api/stats/absences-par-mois-utilisateur?annee=${annee}`),
-                    axios.get('http://localhost:5000/api/stats/retards-par-utilisateur', {
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/manager?managerId=${managerId}`),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-par-mois?annee=${annee}`),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-utilisateurs`),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-par-mois-utilisateur?annee=${annee}`),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/retards-par-utilisateur`, {
                         params: { filtre, annee, mois: filtre === 'mois' ? mois : undefined, semaine: filtre === 'semaine' ? semaine : undefined }
                     })
                 ]);
@@ -106,7 +106,7 @@ function ManagerDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/stats/manager?managerId=${managerId}`);
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stats/manager?managerId=${managerId}`);
                 setStats(res.data);
             } catch (e) {
                 console.error("Erreur lors du rafraîchissement des stats :", e);

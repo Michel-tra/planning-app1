@@ -21,7 +21,7 @@ function ScannerBadge() {
 
     const handleScan = async (badgeCode) => {
         try {
-            const res = await axios.post('http://localhost:5000/api/pointages/pointeur', {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/pointages/pointeur`, {
                 badge_code: badgeCode
             });
             setMessage(res.data.message);

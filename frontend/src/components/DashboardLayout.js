@@ -11,13 +11,14 @@ function DashboardLayout({ children, role }) {
     const handleLogout = async () => {
         const utilisateurId = JSON.parse(localStorage.getItem('user'))?.id;
         try {
-            await axios.post('http://localhost:5000/api/logout', { utilisateurId });
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/logout`, { utilisateurId });
             localStorage.removeItem('user');
             navigate('/');
         } catch (error) {
             console.error("Erreur lors de la déconnexion :", error);
         }
     };
+
 
     const renderSidebarLinks = () => {
         switch (role) {

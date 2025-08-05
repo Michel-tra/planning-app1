@@ -5,7 +5,7 @@ function Pointage() {
     const [status, setStatus] = useState('');
 
     const pointer = (type) => {
-        fetch('http://localhost:5000/api/pointages', {
+        fetch(`${process.env.REACT_APP_API_URL}/api/pointages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type, userId: JSON.parse(localStorage.getItem('user')).id })

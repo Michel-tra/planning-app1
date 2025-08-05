@@ -17,7 +17,7 @@ function PointeurDashboard() {
     useEffect(() => {
         const fetchAbsencesParUser = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/stats/absences-par-user');
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-par-user`);
                 const formatted = res.data.map((user, index) => ({
                     nom: user.nom,
                     absences: parseInt(user.absences),

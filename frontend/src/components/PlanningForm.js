@@ -11,7 +11,7 @@ const PlanningForm = ({ onPlanningCree }) => {
     });
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/utilisateurs')
+        fetch(`${process.env.REACT_APP_API_URL}/api/utilisateurs`)
             .then((res) => res.json())
             .then((data) => setUtilisateurs(data))
             .catch((err) => console.error('Erreur chargement utilisateurs:', err));
@@ -24,7 +24,7 @@ const PlanningForm = ({ onPlanningCree }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch('http://localhost:5000/api/plannings', {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/plannings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),

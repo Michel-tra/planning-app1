@@ -13,7 +13,7 @@ function Pointages() {
 
     const fetchPointages = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/pointages');
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/pointages`);
             setPointages(res.data);
         } catch (error) {
             console.error('Erreur lors du chargement des pointages :', error);
@@ -28,7 +28,7 @@ function Pointages() {
                 <button className="btn-retour" onClick={() => navigate(-1)}>← Retour</button>
 
                 <a
-                    href={`http://localhost:5000/api/pointages/export/pdf?utilisateur_id=${JSON.parse(localStorage.getItem('user')).id}`}
+                    href={`${process.env.REACT_APP_API_URL}/api/pointages/export/pdf?utilisateur_id=${JSON.parse(localStorage.getItem('user')).id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                 >

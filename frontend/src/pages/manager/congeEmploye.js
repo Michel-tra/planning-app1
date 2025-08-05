@@ -23,7 +23,7 @@ const CongeEmploye = () => {
 
     const fetchDemandes = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/conges/manager/toutes');
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/conges/manager/toutes`);
             setDemandes(res.data);
         } catch (error) {
             console.error('Erreur chargement des congés', error);
@@ -32,7 +32,7 @@ const CongeEmploye = () => {
 
     const handleUpdate = async (id, statut) => {
         try {
-            await axios.put(`http://localhost:5000/api/conges/manager/${id}`, {
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/conges/manager/${id}`, {
                 statut,
                 commentaire: statut === 'refuse' ? 'Refusé par le manager' : '',
             });

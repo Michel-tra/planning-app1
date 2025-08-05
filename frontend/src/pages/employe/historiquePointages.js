@@ -13,7 +13,7 @@ function HistoriquePointages() {
     useEffect(() => {
         const fetchPointages = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/pointages/historique/${utilisateurId}`);
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/pointages/historique/${utilisateurId}`);
                 setPointages(res.data);
             } catch (err) {
                 console.error("Erreur lors du chargement des pointages :", err);
