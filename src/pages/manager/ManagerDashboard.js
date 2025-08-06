@@ -60,65 +60,58 @@ function ManagerDashboard() {
     const [retards, setRetards] = useState([]);
     const [parUtilisateur, setParUtilisateur] = useState([]);
 
-    const managerId = JSON.parse(localStorage.getItem('utilisateur'))?.id;
+    const utilisateur = JSON.parse(localStorage.getItem('utilisateur'));
+    const managerId = utilisateur?.id;
+
+    const fetchAllData = async () => {
+        if (!managerId) {
+            console.error('ID manager non trouvé.');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const [
+                statsRes,
+                absencesMoisRes,
+                tauxRes,
+                parUserRes,
+                retardsRes
+            ] = await Promise.all([
+                axios.get(`/api/stats/manager?managerId=${managerId}`),
+                axios.get(`/api/stats/absences-par-mois?annee=${annee}`),
+                axios.get(`/api/stats/absences-utilisateurs/${managerId}`),
+                axios.get(`/api/stats/absences-par-mois-utilisateur?annee=${annee}`),
+                axios.get('/api/stats/retards-par-utilisateur', {
+                    params: {
+                        filtre,
+                        annee,
+                        mois: filtre === 'mois' ? mois : undefined,
+                        semaine: filtre === 'semaine' ? semaine : undefined
+                    }
+                })
+            ]);
+
+            setStats(statsRes.data);
+            setAbsencesMois(absencesMoisRes.data);
+            setTauxAbsences(tauxRes.data);
+            setParUtilisateur(parUserRes.data);
+            setRetards(retardsRes.data.map(r => ({
+                ...r,
+                utilisateur: `${r.prenom} ${r.nom}`
+            })));
+        } catch (err) {
+            console.error("Erreur lors du chargement des données :", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchAllData = async () => {
-            try {
-                const [
-                    statsRes,
-                    absencesMoisRes,
-                    tauxRes,
-                    parUserRes,
-                    retardsRes
-                ] = await Promise.all([
-                    axios.get(`http://localhost:5000/api/stats/manager?managerId=${managerId}`),
-                    axios.get(`http://localhost:5000/api/stats/absences-par-mois?annee=${annee}`),
-                    axios.get('http://localhost:5000/api/stats/absences-utilisateurs'),
-                    axios.get(`http://localhost:5000/api/stats/absences-par-mois-utilisateur?annee=${annee}`),
-                    axios.get('http://localhost:5000/api/stats/retards-par-utilisateur', {
-                        params: { filtre, annee, mois: filtre === 'mois' ? mois : undefined, semaine: filtre === 'semaine' ? semaine : undefined }
-                    })
-                ]);
-
-                setStats(statsRes.data);
-                setAbsencesMois(absencesMoisRes.data);
-                setTauxAbsences(tauxRes.data);
-                setParUtilisateur(parUserRes.data);
-                setRetards(retardsRes.data.map(r => ({
-                    ...r,
-                    utilisateur: `${r.prenom} ${r.nom}`
-                })));
-            } catch (err) {
-                console.error("Erreur lors du chargement des données :", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchAllData(); // Appel initial
-
-        const interval = setInterval(fetchAllData, 15000); // Appel toutes les 15 secondes
-
-        return () => clearInterval(interval); // Nettoyage à la destruction du composant
-    }, [annee, mois, semaine, filtre]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await axios.get(`http://localhost:5000/api/stats/manager?managerId=${managerId}`);
-                setStats(res.data);
-            } catch (e) {
-                console.error("Erreur lors du rafraîchissement des stats :", e);
-            }
-        };
-
-        fetchData(); // chargement initial
-        const interval = setInterval(fetchData, 15000); // toutes les 15s
-
+        fetchAllData();
+        const interval = setInterval(fetchAllData, 15000);
         return () => clearInterval(interval);
-    }, []);
-
+    }, [managerId, annee, mois, semaine, filtre]);
 
     const tauxFormatted = tauxAbsences.map(u => ({
         utilisateur: u.nom,
@@ -133,6 +126,8 @@ function ManagerDashboard() {
 
                 {loading ? (
                     <p>Chargement des données...</p>
+                ) : !managerId ? (
+                    <p>Erreur : Identifiant du manager introuvable.</p>
                 ) : (
                     <>
                         <div className="stats-grid">
@@ -145,14 +140,12 @@ function ManagerDashboard() {
                             <StatCard label="Retards aujourd'hui" value={stats?.retardsJour ?? 0} icon="⏱️" />
                         </div>
 
-
                         <div className="dashboard-graphs">
-
                             <div className="graphs-grid">
                                 <PieSection title="📅 Absences par mois" data={absencesMois} dataKey="mois" valueKey="total" />
                                 <PieSection title="🗓️ Congés acceptés par mois" data={absencesMois} dataKey="mois" valueKey="total" />
-
                             </div>
+
                             <div className="graph-section">
                                 <div className="graph-header">
                                     <h3 className="graph-title">🚦 Retards par utilisateur</h3>
@@ -181,8 +174,6 @@ function ManagerDashboard() {
                                     <PieSection data={retards} dataKey="utilisateur" valueKey="total_retards" />
                                 </div>
                             </div>
-
-
 
                             <div className="graph-section">
                                 <h3 className="graph-title">⏰ Taux de présence et d'absence</h3>
@@ -219,7 +210,6 @@ function ManagerDashboard() {
                                     <p>Aucune donnée disponible.</p>
                                 )}
                             </div>
-
                         </div>
                     </>
                 )}

@@ -4,11 +4,10 @@ const statsController = require('../controllers/statsController');
 
 // Routes pour les statistiques Manager & Admin
 router.get('/manager', statsController.getManagerStats);
-router.get('/absences', statsController.getResumeAbsences);
 router.get('/absences-par-user', statsController.getAbsencesParUtilisateur);
 router.get('/absences-par-mois', statsController.getAbsencesParMois);
-router.get('/retards-par-utilisateur', statsController.getRetardsParUtilisateur);
 router.get('/absences-par-mois-utilisateur', statsController.getAbsencesParMoisEtUtilisateur);
+router.get('/retards-par-utilisateur', statsController.getRetardsParUtilisateur);
 
 // Routes individuelles par utilisateur
 router.get('/absences-utilisateur/:id', statsController.getTauxAbsenceUtilisateur);

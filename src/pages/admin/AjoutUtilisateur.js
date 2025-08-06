@@ -33,7 +33,7 @@ function AjoutUtilisateur() {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/utilisateurs', {
+            const response = await fetch('/api/utilisateurs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

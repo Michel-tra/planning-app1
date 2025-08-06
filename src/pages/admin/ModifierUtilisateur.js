@@ -22,7 +22,7 @@ function ModifierUtilisateur() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`http://localhost:5000/api/utilisateurs/${id}`)
+        fetch(`/api/utilisateurs/${id}`)
             .then(res => res.json())
             .then(data => {
                 setUtilisateur(data);
@@ -42,7 +42,7 @@ function ModifierUtilisateur() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`http://localhost:5000/api/utilisateurs/${id}`, {
+            const res = await fetch(`/api/utilisateurs/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(utilisateur),

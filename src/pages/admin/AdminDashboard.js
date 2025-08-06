@@ -26,7 +26,7 @@ function AdminDashboard() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/admin/stats');
+                const response = await axios.get('/api/admin/stats');
                 setStats(response.data);
             } catch (error) {
                 console.error('Erreur chargement stats admin:', error);
@@ -35,7 +35,7 @@ function AdminDashboard() {
 
         const fetchLogs = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/admin/logs');
+                const response = await axios.get('/api/admin/logs');
                 setLogs(response.data);
             } catch (error) {
                 console.error('Erreur chargement logs admin:', error);
@@ -44,7 +44,7 @@ function AdminDashboard() {
 
         const fetchDroitsConges = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/admin/stats/conges-anciennete?annee=${annee}`);
+                const res = await axios.get(`/api/admin/stats/conges-anciennete?annee=${annee}`);
                 setDroitsConges(res.data);
             } catch (error) {
                 console.error("Erreur chargement droit à congé :", error);
@@ -60,7 +60,7 @@ function AdminDashboard() {
         if (vue === 'beneficiaire') {
             const fetchBeneficiaires = async () => {
                 try {
-                    const res = await axios.get(`http://localhost:5000/api/admin/stats/conges-par-beneficiaire?annee=${annee}`);
+                    const res = await axios.get(`/api/admin/stats/conges-par-beneficiaire?annee=${annee}`);
                     setCongesParBeneficiaire(res.data);
                 } catch (error) {
                     console.error("Erreur chargement congés par bénéficiaire :", error);

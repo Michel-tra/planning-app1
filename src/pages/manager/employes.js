@@ -19,7 +19,7 @@ const Employes = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/utilisateurs/manager/employes')
+        axios.get('/api/utilisateurs/manager/employes')
             .then(response => setUtilisateurs(response.data))
             .catch(error => console.error('Erreur lors de la récupération des utilisateurs:', error));
     }, []);

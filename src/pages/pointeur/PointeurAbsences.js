@@ -14,8 +14,8 @@ const PointeurAbsences = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res1 = await axios.get('http://localhost:5000/api/stats/absences');
-                const res2 = await axios.get('http://localhost:5000/api/stats/absences-par-user');
+                const res1 = await axios.get('/api/stats/absences');
+                const res2 = await axios.get('/api/stats/absences-par-user');
 
                 setResume(res1.data);
                 setParUtilisateur(res2.data);
@@ -53,7 +53,7 @@ const PointeurAbsences = () => {
 
                         <div className="absences-table-container">
                             <h3>Détails par utilisateur</h3>
-                            <button onClick={() => window.open('http://localhost:5000/api/stats/export/absences')} className="export-button">
+                            <button onClick={() => window.open('/api/stats/export/absences')} className="export-button">
                                 ⬇️ Exporter PDF
                             </button>
 

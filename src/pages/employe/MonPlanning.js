@@ -23,7 +23,7 @@ function MonPlanning() {
     useEffect(() => {
         const fetchPlanning = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/plannings/personnel/${utilisateurId}`);
+                const res = await axios.get(`/api/plannings/personnel/${utilisateurId}`);
                 setPlannings(res.data);
             } catch (err) {
                 console.error(err);

@@ -39,7 +39,7 @@ function EmployeDashboard() {
     useEffect(() => {
         const fetchHistoriqueArrivees = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/stats/historique-arrivees/${utilisateurId}`);
+                const res = await axios.get(`/api/stats/historique-arrivees/${utilisateurId}`);
                 let totalHeures = 0;
 
                 const formatted = res.data.map(row => {
@@ -71,7 +71,7 @@ function EmployeDashboard() {
     useEffect(() => {
         const fetchTaux = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/stats/absences-utilisateur/${utilisateurId}`);
+                const res = await axios.get(`/api/stats/absences-utilisateur/${utilisateurId}`);
                 setTaux(res.data);
             } catch (err) {
                 console.error("Erreur taux absence/presence :", err);
@@ -90,7 +90,7 @@ function EmployeDashboard() {
             }
 
             try {
-                const res = await axios.get(`http://localhost:5000/api/pointages/resume-jour/${utilisateurId}`);
+                const res = await axios.get(`/api/pointages/resume-jour/${utilisateurId}`);
                 setResume(res.data);
             } catch (error) {
                 console.error("Erreur fetchResume :", error);

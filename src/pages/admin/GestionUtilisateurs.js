@@ -21,7 +21,7 @@ function GestionUtilisateurs() {
     };
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/utilisateurs')
+        fetch('/api/utilisateurs')
             .then(res => res.json())
             .then(data => {
                 const usersWithStatus = data.map(u => ({ ...u, actif: u.actif ?? true }));
@@ -46,7 +46,7 @@ function GestionUtilisateurs() {
 
     const handleChangeRole = async (id, nouveauRole) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/utilisateurs/${id}/role`, {
+            const res = await fetch(`/api/utilisateurs/${id}/role`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ role: nouveauRole }),
@@ -65,7 +65,7 @@ function GestionUtilisateurs() {
 
     const handleToggleStatus = async (id, actif) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/utilisateurs/${id}/status`, {
+            const res = await fetch(`/api/utilisateurs/${id}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ actif: !actif })

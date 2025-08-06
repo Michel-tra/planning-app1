@@ -24,7 +24,7 @@ const DemandesConge = () => {
 
     const fetchDemandes = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/conges/employe/${user.id}`);
+            const response = await axios.get(`/api/conges/employe/${user.id}`);
             setDemandes(response.data);
         } catch (error) {
             console.error('Erreur lors du chargement des demandes', error);
@@ -38,7 +38,7 @@ const DemandesConge = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/conges', {
+            await axios.post('/api/conges', {
                 utilisateur_id: user.id,
                 date_debut: form.date_debut,
                 date_fin: form.date_fin,

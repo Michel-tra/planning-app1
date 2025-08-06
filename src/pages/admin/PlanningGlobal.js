@@ -4,7 +4,7 @@ function PlanningGlobal() {
     const [plannings, setPlannings] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/plannings')
+        fetch('/api/plannings')
             .then(res => res.json())
             .then(data => setPlannings(data))
             .catch(err => console.error('Erreur chargement planning global', err));

@@ -1,5 +1,8 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const db = require('./config/db');
 
 // Routes
@@ -15,20 +18,16 @@ const statsRoutes = require('./routes/statsRoutes');
 
 // Initialisation de l'application Express
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 // rendre la DB accessible dans les contrôleurs via req.app.get('db')
 app.set('db', db);
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Route de test
-app.get('/', (req, res) => {
-    res.send('Backend opérationnel ✅');
-});
-
-// Déclaration des routes API
+// Routes API
 app.use('/api/login', authRoutes(db));
 app.use('/api/plannings', planningRoutes);
 app.use('/api/employes', employeRoutes);
@@ -39,13 +38,20 @@ app.use('/api/historique', historiqueRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Gestion des erreurs 404
-app.use((req, res) => {
-    console.log("❌ Route non trouvée :", req.method, req.originalUrl);
-    res.status(404).json({ message: 'Route non trouvée' });
+// === SERVE REACT FRONTEND BUILD ===
+app.use(express.static(path.join(__dirname, 'build')));
+
+// SPA React fallback
+app.get('*', (req, res) => {
+    if (req.originalUrl.startsWith('/api')) {
+        console.log("❌ Route API non trouvée :", req.method, req.originalUrl);
+        res.status(404).json({ message: 'Route API non trouvée' });
+    } else {
+        res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    }
 });
 
-// Lancement du serveur
+// Start server
 app.listen(port, () => {
     console.log(`🚀 Serveur backend démarré sur le port ${port}`);
 });

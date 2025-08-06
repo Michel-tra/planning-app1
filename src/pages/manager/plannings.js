@@ -46,7 +46,7 @@ function Plannings() {
 
     const fetchPlannings = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/plannings');
+            const res = await axios.get('/api/plannings');
             console.log('Plannings reçus:', res.data);
             setPlannings(res.data);
 
@@ -57,7 +57,7 @@ function Plannings() {
 
     const fetchUtilisateurs = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/utilisateurs');
+            const res = await axios.get('/api/utilisateurs');
             setUtilisateurs(res.data);
             console.log('Utilisateurs chargés :', res.data);
         } catch (error) {
@@ -89,7 +89,7 @@ function Plannings() {
                 description: form.description,
             };
 
-            await axios.post('http://localhost:5000/api/plannings', payload);
+            await axios.post('/api/plannings', payload);
             fetchPlannings();
             setForm({ nom_utilisateur: '', date: '', heure_debut: '', heure_fin: '' });
             console.log("Formulaire envoyé :", form);
@@ -102,7 +102,7 @@ function Plannings() {
 
     const handleDelete = async id => {
         try {
-            await axios.delete(`http://localhost:5000/api/plannings/${id}`);
+            await axios.delete(`/api/plannings/${id}`);
             fetchPlannings();
         } catch (error) {
             console.error('Erreur suppression planning:', error);
@@ -125,7 +125,7 @@ function Plannings() {
         }
 
         try {
-            await axios.put(`http://localhost:5000/api/plannings/${editId}`, {
+            await axios.put(`/api/plannings/${editId}`, {
                 utilisateur_id: utilisateur.id,
                 date: form.date,
                 heure_debut: form.heure_debut,
