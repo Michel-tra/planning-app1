@@ -7,11 +7,7 @@ router.post('/', planningController.create);       // Créer un planning
 router.put('/:id', planningController.update);     // Modifier un planning
 router.delete('/:id', planningController.remove);  // Supprimer un planning
 router.get('/personnel/:id', planningController.getPlanningPersonnel)
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 93f5a34d (PROJETTUTORER)
+    ; // Accès au planning personnel
 module.exports = router;
 
 
