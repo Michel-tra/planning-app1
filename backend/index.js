@@ -18,7 +18,7 @@ const statsRoutes = require('./routes/statsRoutes');
 
 // Initialisation de l'application Express
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3001;
 
 // rendre la DB accessible dans les contrôleurs via req.app.get('db')
 app.set('db', db);
