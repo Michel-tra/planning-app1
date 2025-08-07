@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 
 function PlanningGlobal() {
     const [plannings, setPlannings] = useState([]);
 
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_API_URL}/api/plannings`)
-            .then(res => res.json())
-            .then(data => setPlannings(data))
+        API.get('/api/plannings')
+            .then(res => setPlannings(res.data))
             .catch(err => console.error('Erreur chargement planning global', err));
     }, []);
 
     return (
-
         <div className="page-container">
             <h2>Planning Global</h2>
             <table>
@@ -35,7 +34,6 @@ function PlanningGlobal() {
                 </tbody>
             </table>
         </div>
-
     );
 }
 

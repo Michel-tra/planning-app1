@@ -8,7 +8,7 @@ const db = require('./config/db');
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const planningRoutes = require('./routes/plannings');
-const employeRoutes = require('./routes/employeRoutes')(db);
+const employeRoutes = require('./routes/employeRoutes');
 const pointageRoutes = require('./routes/pointageRoutes');
 const demandesCongeRoutes = require('./routes/demandesCongeRoutes');
 const utilisateurRoutes = require('./routes/utilisateurRoutes');
@@ -28,7 +28,7 @@ app.use(cors());
 app.use(express.json());
 
 // ================= Routes API =================
-app.use('/api/login', authRoutes(db));
+app.use('/api', authRoutes);
 app.use('/api/plannings', planningRoutes);
 app.use('/api/employes', employeRoutes);
 app.use('/api/pointages', pointageRoutes);
@@ -39,15 +39,14 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 
 // ============ SERVE REACT FRONTEND BUILD ============
-app.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, '../frontend/build')));
 
-// SPA React fallback (pour React Router)
 app.get('*', (req, res) => {
     if (req.originalUrl.startsWith('/api')) {
         console.log("❌ Route API non trouvée :", req.method, req.originalUrl);
         res.status(404).json({ message: 'Route API non trouvée' });
     } else {
-        res.sendFile(path.join(__dirname, 'build', 'index.html'));
+        res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
     }
 });
 

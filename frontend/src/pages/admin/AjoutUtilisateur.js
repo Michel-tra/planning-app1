@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API from '../../api/api'; // ton fichier API centralisé
 import '../../styles/App.css';
 
 function AjoutUtilisateur() {
@@ -33,33 +34,25 @@ function AjoutUtilisateur() {
         }
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/utilisateurs`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nom: form.nom,
-                    prenom: form.prenom,
-                    email: form.email,
-                    mot_de_passe: form.motDePasse,
-                    telephone: form.telephone,
-                    poste: form.poste,
-                    badge_code: form.badge_code,
-                    role: form.role,
-                    jour_repos: form.jour_repos,
-                    date_embauche: form.date_embauche,
-                }),
+            await API.post('/api/utilisateurs', {
+                nom: form.nom,
+                prenom: form.prenom,
+                email: form.email,
+                mot_de_passe: form.motDePasse,
+                telephone: form.telephone,
+                poste: form.poste,
+                badge_code: form.badge_code,
+                role: form.role,
+                jour_repos: form.jour_repos,
+                date_embauche: form.date_embauche,
             });
 
-            if (response.ok) {
-                alert("✅ Utilisateur ajouté avec succès");
-                navigate('/admin/utilisateurs');
-            } else {
-                const errData = await response.json();
-                setErreur(errData.message || 'Une erreur est survenue');
-            }
+            alert("✅ Utilisateur ajouté avec succès");
+            navigate('/admin/utilisateurs');
         } catch (error) {
-            console.error('Erreur réseau :', error);
-            setErreur('Une erreur réseau est survenue');
+            console.error('Erreur ajout utilisateur :', error);
+            const errMessage = error.response?.data?.message || 'Une erreur est survenue';
+            setErreur(errMessage);
         }
     };
 

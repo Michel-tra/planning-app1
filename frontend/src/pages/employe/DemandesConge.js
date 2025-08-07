@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 
@@ -24,7 +24,7 @@ const DemandesConge = () => {
 
     const fetchDemandes = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/conges/employe/${user.id}`);
+            const response = await API.get(`/api/conges/employe/${user.id}`);
             setDemandes(response.data);
         } catch (error) {
             console.error('Erreur lors du chargement des demandes', error);
@@ -38,7 +38,7 @@ const DemandesConge = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/conges`, {
+            await API.post(`/api/conges`, {
                 utilisateur_id: user.id,
                 date_debut: form.date_debut,
                 date_fin: form.date_fin,

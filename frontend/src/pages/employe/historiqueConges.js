@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import DashboardLayout from '../../components/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
@@ -34,7 +34,7 @@ function HistoriqueConges() {
     useEffect(() => {
         const fetchConges = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/conges/historique/${utilisateurId}`);
+                const res = await API.get(`/api/conges/historique/${utilisateurId}`);
                 setConges(res.data);
             } catch (err) {
                 console.error("Erreur lors du chargement des congés :", err);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles/App.css';
 import { useNavigate } from 'react-router-dom';
+import API from '../../api/api';  // Ton fichier api.js avec axios.create
 
 function GestionUtilisateurs() {
     const [utilisateurs, setUtilisateurs] = useState([]);
@@ -21,9 +22,9 @@ function GestionUtilisateurs() {
     };
 
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_API_URL}/api/utilisateurs`)
-            .then(res => res.json())
-            .then(data => {
+        API.get('/api/utilisateurs')
+            .then(res => {
+                const data = res.data;
                 const usersWithStatus = data.map(u => ({ ...u, actif: u.actif ?? true }));
                 setUtilisateurs(usersWithStatus);
             })
@@ -46,40 +47,25 @@ function GestionUtilisateurs() {
 
     const handleChangeRole = async (id, nouveauRole) => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/utilisateurs/${id}/role`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ role: nouveauRole }),
-            });
-            if (res.ok) {
-                setUtilisateurs(prev =>
-                    prev.map(u => (u.id === id ? { ...u, role: nouveauRole } : u))
-                );
-            } else {
-                alert("Erreur lors du changement de rôle.");
-            }
+            await API.put(`/api/utilisateurs/${id}/role`, { role: nouveauRole });
+            setUtilisateurs(prev =>
+                prev.map(u => (u.id === id ? { ...u, role: nouveauRole } : u))
+            );
         } catch (err) {
             console.error("Erreur rôle :", err);
+            alert("Erreur lors du changement de rôle.");
         }
     };
 
     const handleToggleStatus = async (id, actif) => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/utilisateurs/${id}/status`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ actif: !actif })
-            });
-
-            if (res.ok) {
-                setUtilisateurs(prev =>
-                    prev.map(u => (u.id === id ? { ...u, actif: !actif } : u))
-                );
-            } else {
-                alert("Erreur mise à jour statut.");
-            }
+            await API.put(`/api/utilisateurs/${id}/status`, { actif: !actif });
+            setUtilisateurs(prev =>
+                prev.map(u => (u.id === id ? { ...u, actif: !actif } : u))
+            );
         } catch (err) {
-            console.error("Erreur réseau :", err);
+            console.error("Erreur mise à jour statut :", err);
+            alert("Erreur mise à jour statut.");
         }
     };
 
@@ -107,7 +93,6 @@ function GestionUtilisateurs() {
                 />
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                     <button className="btn-retour" onClick={() => navigate('/admin/')}>← Retour</button>
-
                     <button className="btn-pdf" onClick={() => navigate('/admin/ajouter-utilisateur')}>➕ Ajouter</button>
                     <button className="btn-pdf" onClick={exportPDF}>📄 Export PDF</button>
                     <button className="btn-pdf" onClick={() => window.location.reload()}>🔁 Rafraîchir</button>

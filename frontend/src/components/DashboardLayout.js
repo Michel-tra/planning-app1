@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import React from 'react';
-import axios from 'axios';
+import API from '../api/api'; // Assure-toi que ce chemin est correct
 import { User } from 'lucide-react';
 import '../styles/App.css';
 
@@ -11,7 +11,7 @@ function DashboardLayout({ children, role }) {
     const handleLogout = async () => {
         const utilisateurId = JSON.parse(localStorage.getItem('user'))?.id;
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/logout`, { utilisateurId });
+            await API.post(`/api/logout`, { utilisateurId });
             localStorage.removeItem('user');
             navigate('/');
         } catch (error) {

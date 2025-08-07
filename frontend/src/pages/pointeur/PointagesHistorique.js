@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -15,7 +15,7 @@ function PointagesHistorique() {
     useEffect(() => {
         const fetchPointages = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/pointages/filtre`, {
+                const res = await API.get(`/api/pointages/filtre`, {
                     params: date ? { date } : {}
                 });
                 setPointages(res.data);

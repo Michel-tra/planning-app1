@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css'; // ← Nouveau fichier CSS
 
@@ -23,7 +23,7 @@ const CongeEmploye = () => {
 
     const fetchDemandes = async () => {
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/conges/manager/toutes`);
+            const res = await API.get(`/api/conges/manager/toutes`);
             setDemandes(res.data);
         } catch (error) {
             console.error('Erreur chargement des congés', error);
@@ -32,7 +32,7 @@ const CongeEmploye = () => {
 
     const handleUpdate = async (id, statut) => {
         try {
-            await axios.put(`${process.env.REACT_APP_API_URL}/api/conges/manager/${id}`, {
+            await API.put(`/api/conges/manager/${id}`, {
                 statut,
                 commentaire: statut === 'refuse' ? 'Refusé par le manager' : '',
             });

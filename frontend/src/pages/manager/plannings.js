@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import '../../styles/App.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -46,7 +46,7 @@ function Plannings() {
 
     const fetchPlannings = async () => {
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/plannings`);
+            const res = await API.get(`/api/plannings`);
             console.log('Plannings reçus:', res.data);
             setPlannings(res.data);
 
@@ -57,7 +57,7 @@ function Plannings() {
 
     const fetchUtilisateurs = async () => {
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/utilisateurs`);
+            const res = await API.get(`/api/utilisateurs`);
             setUtilisateurs(res.data);
             console.log('Utilisateurs chargés :', res.data);
         } catch (error) {
@@ -89,7 +89,7 @@ function Plannings() {
                 description: form.description,
             };
 
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/plannings`, payload);
+            await API.post(`/api/plannings`, payload);
             fetchPlannings();
             setForm({ nom_utilisateur: '', date: '', heure_debut: '', heure_fin: '' });
             console.log("Formulaire envoyé :", form);
@@ -102,7 +102,7 @@ function Plannings() {
 
     const handleDelete = async id => {
         try {
-            await axios.delete(`${process.env.REACT_APP_API_URL}/api/plannings/${id}`);
+            await API.delete(`/api/plannings/${id}`);
             fetchPlannings();
         } catch (error) {
             console.error('Erreur suppression planning:', error);
@@ -125,7 +125,7 @@ function Plannings() {
         }
 
         try {
-            await axios.put(`${process.env.REACT_APP_API_URL}/api/plannings/${editId}`, {
+            await API.put(`/api/plannings/${editId}`, {
                 utilisateur_id: utilisateur.id,
                 date: form.date,
                 heure_debut: form.heure_debut,

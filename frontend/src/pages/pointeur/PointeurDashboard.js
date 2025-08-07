@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../../api/api'; // Ton fichier api.js avec axios.create
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend
@@ -17,7 +17,7 @@ function PointeurDashboard() {
     useEffect(() => {
         const fetchAbsencesParUser = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-par-user`);
+                const res = await API.get(`/api/stats/absences-par-user`);
                 const formatted = res.data.map((user, index) => ({
                     nom: user.nom,
                     absences: parseInt(user.absences),

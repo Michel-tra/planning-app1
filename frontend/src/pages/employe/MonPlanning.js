@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css'; // Assure-toi que ce fichier est bien importé
 
@@ -23,7 +23,7 @@ function MonPlanning() {
     useEffect(() => {
         const fetchPlanning = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/plannings/personnel/${utilisateurId}`);
+                const res = await API.get(`/api/plannings/personnel/${utilisateurId}`);
                 setPlannings(res.data);
             } catch (err) {
                 console.error(err);

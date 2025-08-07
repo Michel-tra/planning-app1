@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 
 function ModifierUtilisateur() {
     const { id } = useParams();
@@ -22,10 +23,9 @@ function ModifierUtilisateur() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_API_URL}/api/utilisateurs/${id}`)
-            .then(res => res.json())
-            .then(data => {
-                setUtilisateur(data);
+        API.get(`/api/utilisateurs/${id}`)
+            .then(res => {
+                setUtilisateur(res.data);
                 setLoading(false);
             })
             .catch(err => {
@@ -42,20 +42,12 @@ function ModifierUtilisateur() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/utilisateurs/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(utilisateur),
-            });
-
-            if (res.ok) {
-                alert('✅ Utilisateur modifié avec succès !');
-                navigate('/admin/utilisateurs');
-            } else {
-                alert('❌ Erreur lors de la modification.');
-            }
+            await API.put(`/api/utilisateurs/${id}`, utilisateur);
+            alert('✅ Utilisateur modifié avec succès !');
+            navigate('/admin/utilisateurs');
         } catch (error) {
-            console.error('Erreur réseau :', error);
+            console.error('Erreur lors de la modification :', error);
+            alert('❌ Erreur lors de la modification.');
         }
     };
 
@@ -99,7 +91,7 @@ function ModifierUtilisateur() {
                 </label>
 
                 <label>Badge :
-                    <input type="text" name="badge" value={utilisateur.badge_code} onChange={handleChange} />
+                    <input type="text" name="badge_code" value={utilisateur.badge_code} onChange={handleChange} />
                 </label>
 
                 <label>Mot de passe (laisser vide si inchangé) :

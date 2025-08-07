@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
-import axios from 'axios';
 import '../../styles/App.css';
+import API from '../../api/api';
 
 function StatCard({ label, value, icon }) {
     return (
@@ -26,7 +26,7 @@ function AdminDashboard() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/stats`);
+                const response = await API.get(`/api/admin/stats`);
                 setStats(response.data);
             } catch (error) {
                 console.error('Erreur chargement stats admin:', error);
@@ -35,7 +35,7 @@ function AdminDashboard() {
 
         const fetchLogs = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/logs`);
+                const response = await API.get(`/api/admin/logs`);
                 setLogs(response.data);
             } catch (error) {
                 console.error('Erreur chargement logs admin:', error);
@@ -44,7 +44,7 @@ function AdminDashboard() {
 
         const fetchDroitsConges = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/stats/conges-anciennete?annee=${annee}`);
+                const res = await API.get(`/api/admin/stats/conges-anciennete?annee=${annee}`);
                 setDroitsConges(res.data);
             } catch (error) {
                 console.error("Erreur chargement droit à congé :", error);
@@ -60,7 +60,7 @@ function AdminDashboard() {
         if (vue === 'beneficiaire') {
             const fetchBeneficiaires = async () => {
                 try {
-                    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/stats/conges-par-beneficiaire?annee=${annee}`);
+                    const res = await API.get(`/api/admin/stats/conges-par-beneficiaire?annee=${annee}`);
                     setCongesParBeneficiaire(res.data);
                 } catch (error) {
                     console.error("Erreur chargement congés par bénéficiaire :", error);

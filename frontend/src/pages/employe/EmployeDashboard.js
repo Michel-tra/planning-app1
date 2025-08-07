@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import {
@@ -39,7 +39,7 @@ function EmployeDashboard() {
     useEffect(() => {
         const fetchHistoriqueArrivees = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stats/historique-arrivees/${utilisateurId}`);
+                const res = await API.get(`/api/stats/historique-arrivees/${utilisateurId}`);
                 let totalHeures = 0;
 
                 const formatted = res.data.map(row => {
@@ -71,7 +71,7 @@ function EmployeDashboard() {
     useEffect(() => {
         const fetchTaux = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-utilisateur/${utilisateurId}`);
+                const res = await API.get(`/api/stats/absences-utilisateur/${utilisateurId}`);
                 setTaux(res.data);
             } catch (err) {
                 console.error("Erreur taux absence/presence :", err);
@@ -90,7 +90,7 @@ function EmployeDashboard() {
             }
 
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/pointages/resume-jour/${utilisateurId}`);
+                const res = await API.get(`/api/pointages/resume-jour/${utilisateurId}`);
                 setResume(res.data);
             } catch (error) {
                 console.error("Erreur fetchResume :", error);

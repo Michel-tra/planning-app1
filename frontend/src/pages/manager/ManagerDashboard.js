@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import DashboardLayout from '../../components/DashboardLayout';
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid,
@@ -72,11 +72,11 @@ function ManagerDashboard() {
                     parUserRes,
                     retardsRes
                 ] = await Promise.all([
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/manager?managerId=${managerId}`),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-par-mois?annee=${annee}`),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-utilisateurs`),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-par-mois-utilisateur?annee=${annee}`),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/stats/retards-par-utilisateur`, {
+                    API.get(`/api/stats/manager?managerId=${managerId}`),
+                    API.get(`/api/stats/absences-par-mois?annee=${annee}`),
+                    API.get(`/api/stats/absences-utilisateurs`),
+                    API.get(`/api/stats/absences-par-mois-utilisateur?annee=${annee}`),
+                    API.get(`/api/stats/retards-par-utilisateur`, {
                         params: { filtre, annee, mois: filtre === 'mois' ? mois : undefined, semaine: filtre === 'semaine' ? semaine : undefined }
                     })
                 ]);
@@ -106,7 +106,7 @@ function ManagerDashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stats/manager?managerId=${managerId}`);
+                const res = await API.get(`/api/stats/manager?managerId=${managerId}`);
                 setStats(res.data);
             } catch (e) {
                 console.error("Erreur lors du rafraîchissement des stats :", e);

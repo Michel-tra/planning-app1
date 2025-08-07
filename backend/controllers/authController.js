@@ -14,6 +14,7 @@ exports.login = async (req, res) => {
             [email]
         );
 
+
         const user = rows[0];
 
         if (!user || user.mot_de_passe !== password) {

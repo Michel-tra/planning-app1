@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css'; // Ajoute ce fichier CSS à ton projet
 
@@ -19,7 +19,7 @@ const Employes = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/api/utilisateurs/manager/employes`)
+        API.get(`/api/utilisateurs/manager/employes`)
             .then(response => setUtilisateurs(response.data))
             .catch(error => console.error('Erreur lors de la récupération des utilisateurs:', error));
     }, []);

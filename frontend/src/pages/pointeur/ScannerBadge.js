@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../../api/api'; // Assure-toi que ce chemin est correct
 import '../../styles/App.css'; // Assure-toi que ce chemin est correct
 
 function ScannerBadge() {
@@ -21,7 +21,7 @@ function ScannerBadge() {
 
     const handleScan = async (badgeCode) => {
         try {
-            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/pointages/pointeur`, {
+            const res = await API.post(`/api/pointages/pointeur`, {
                 badge_code: badgeCode
             });
             setMessage(res.data.message);

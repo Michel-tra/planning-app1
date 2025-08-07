@@ -19,6 +19,9 @@ Thumbs.db
 
 # Environment Variables
 .env
+.env.local
+.env.production
+
 /backend/.env
 /frontend/.env
 .env.local

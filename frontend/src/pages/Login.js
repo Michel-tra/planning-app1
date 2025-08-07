@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
-
-
+import API from '../api/api'; // Ton fichier API.js (axios.create)
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -18,32 +17,31 @@ function Login() {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password: motDePasse })
+            const response = await API.post('/api/login', {
+                email,
+                password: motDePasse
             });
 
-            const data = await response.json();
+            const data = response.data;
             console.log("Réponse login :", data);
 
-            if (!response.ok) {
-                setErreur(data.message || 'Erreur de connexion');
+            const utilisateur = data.utilisateur || data.user || data;
+
+            if (!utilisateur || !utilisateur.role) {
+                setErreur('Données utilisateur invalides');
                 setIsLoading(false);
                 return;
             }
 
-            const utilisateur = data.utilisateur || data.user || data;
-
             // Stockage des infos utilisateur
-            localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('utilisateurId', data.user.id);
-            localStorage.setItem('utilisateurNom', data.user.nom);
+            localStorage.setItem('user', JSON.stringify(utilisateur));
+            localStorage.setItem('utilisateurId', utilisateur.id);
+            localStorage.setItem('utilisateurNom', utilisateur.nom);
             localStorage.setItem('utilisateur', JSON.stringify({
-                id: data.user.id,
-                nom: data.user.nom,
-                prenom: data.user.prenom,
-                role: data.user.role
+                id: utilisateur.id,
+                nom: utilisateur.nom,
+                prenom: utilisateur.prenom,
+                role: utilisateur.role
             }));
 
             const role = utilisateur.role;
@@ -54,8 +52,9 @@ function Login() {
             }
 
         } catch (err) {
-            console.error('❌ Erreur réseau :', err);
-            setErreur('Erreur réseau ou serveur.');
+            console.error('❌ Erreur connexion :', err);
+            const messageErreur = err.response?.data?.message || 'Erreur réseau ou serveur.';
+            setErreur(messageErreur);
         } finally {
             setIsLoading(false);
         }
@@ -118,7 +117,6 @@ const styles = {
     container: {
         backgroundColor: '#f0f8ff',
         height: '100vh',
-
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',

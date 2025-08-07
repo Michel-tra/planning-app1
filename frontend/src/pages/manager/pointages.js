@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import { useNavigate } from 'react-router-dom';
 import '../../styles/App.css';
 
@@ -13,7 +13,7 @@ function Pointages() {
 
     const fetchPointages = async () => {
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/pointages`);
+            const res = await API.get(`/api/pointages`);
             setPointages(res.data);
         } catch (error) {
             console.error('Erreur lors du chargement des pointages :', error);
@@ -28,7 +28,7 @@ function Pointages() {
                 <button className="btn-retour" onClick={() => navigate(-1)}>← Retour</button>
 
                 <a
-                    href={`${process.env.REACT_APP_API_URL}/api/pointages/export/pdf?utilisateur_id=${JSON.parse(localStorage.getItem('user')).id}`}
+                    href={`/api/pointages/export/pdf?utilisateur_id=${JSON.parse(localStorage.getItem('user')).id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                 >

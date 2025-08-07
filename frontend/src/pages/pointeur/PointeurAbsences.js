@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../../api/api';  // <-- Ton fichier api.js avec axios.create
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import '../../styles/App.css';
@@ -14,8 +14,8 @@ const PointeurAbsences = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res1 = await axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences`);
-                const res2 = await axios.get(`${process.env.REACT_APP_API_URL}/api/stats/absences-par-user`);
+                const res1 = await API.get(`/api/stats/absences`);
+                const res2 = await API.get(`/api/stats/absences-par-user`);
 
                 setResume(res1.data);
                 setParUtilisateur(res2.data);
@@ -53,7 +53,7 @@ const PointeurAbsences = () => {
 
                         <div className="absences-table-container">
                             <h3>Détails par utilisateur</h3>
-                            <button onClick={() => window.open(`${process.env.REACT_APP_API_URL}/api/stats/export/absences`)} className="export-button">
+                            <button onClick={() => window.open(`/api/stats/export/absences`)} className="export-button">
                                 ⬇️ Exporter PDF
                             </button>
 
